@@ -1,6 +1,5 @@
 /// <reference path="typings/node/node.d.ts"/>
 /*
- Copied from https://github.com/jackchi/SmartThings/blob/5d7360bd2c2a2624f826bb0710e716f0e16e9741/stoauth.js but was never merged into https://github.com/schettj/SmartThings
  OAUTH Client Example
  needs 
  npm install express
@@ -22,7 +21,9 @@ var CLIENT_SECRET = process.argv[3];
 var request = require('request');
 var express = require('express'),
   app = express();
-
+var token;
+var accessURL;
+var apiURL;
 var endpoints_uri = 'https://graph.api.smartthings.com/api/smartapps/endpoints';
 
 var oauth2 = require('simple-oauth2')({
@@ -56,13 +57,17 @@ app.get('/callback', function (req, res) {
     if (error) { console.log('Access Token Error', error.message); }
 
     // result.access_token is the token, get the endpoint
-    var bearer = result.access_token
+    token = result.access_token;
     var sendreq = { method: "GET", uri: endpoints_uri + "?access_token=" + result.access_token };
     request(sendreq, function (err, res1, body) {
       var endpoints = JSON.parse(body);
+	  console.log(endpoints);
       // we just show the final access URL and Bearer code
       var access_url = endpoints[0].url
-      res.send('<pre>https://graph.api.smartthings.com/' + access_url + '</pre><br><pre>Bearer ' + bearer + '</pre>');
+	  
+	accessURL = 'https://graph.api.smartthings.com/' + access_url;
+	apiURL = endpoints[0].uri;
+      res.send('<pre>https://graph.api.smartthings.com/' + access_url + '</pre><br><pre>Token ' + token + '</pre><br/><a href="/devices">Get Devices</a><br/><a href="/endpoints">Get Endpoints</a><br/>');
     });
   }
 });
@@ -70,6 +75,46 @@ app.get('/callback', function (req, res) {
 app.get('/', function (req, res) {
   res.send('<a href="/auth">Connect with SmartThings</a>');
 });
+
+app.get('/endpoints', function(req, res) {
+	var response = "";
+	var options = {
+		uri: endpoints_uri + "?access_token=" + token,
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + token
+		}
+	};
+	request(options, function(err, res1, body) {
+		var endpoints = JSON.parse(body);
+		res.send('endpoints are: ' + endpoints[0].location.name + endpoints[0].uri);
+	});
+	
+});
+
+app.get('/devices', function(req, res) {
+	var response = "";
+	var options = {
+		uri: apiURL + "/devices" + "?access_token=" + token,
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + token
+		}
+	};
+	request(options, function(err, res1, body) {
+		var devices = JSON.parse(body);
+		console.log(devices);
+		var deviceHTML = "<div>Devices</div>";
+		for(var i = 0; i < devices.length; i++) {
+			deviceHTML += "<div>id: "+devices[i].id + " Name: " + devices[i].displayName + " Type: " + devices[i].name + "</div>";
+		}
+		res.send(deviceHTML);
+	});
+	
+});
+
 
 app.listen(3000);
 
