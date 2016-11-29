@@ -22,8 +22,38 @@ var request = require('request');
 var express = require('express'),
   app = express();
 var token;
-var accessURL;
 var apiURL;
+var fs = require('fs');
+//var path = require('path');
+
+//var filePath = path.join(__dirname, 'token.txt');
+
+fs.readFile('token.txt', {encoding: 'utf-8'}, function(err,data){
+    if (!err){
+    console.log('received data: ' + data);
+	token = data;
+	console.log('Token is ' + token);
+    //response.writeHead(200, {'Content-Type': 'text/html'});
+    //response.write(data);
+    //response.end();
+    }else{
+        console.log(err);
+    }
+});
+fs.readFile('accessURL.txt', {encoding: 'utf-8'}, function(err,data){
+    if (!err){
+    console.log('received data: ' + data);
+	apiURL = data;
+	console.log('Token is ' + token);
+    //response.writeHead(200, {'Content-Type': 'text/html'});
+    //response.write(data);
+    //response.end();
+    }else{
+        console.log(err);
+    }
+});
+
+var accessURL;
 var endpoints_uri = 'https://graph.api.smartthings.com/api/smartapps/endpoints';
 
 var oauth2 = require('simple-oauth2')({
@@ -58,6 +88,16 @@ app.get('/callback', function (req, res) {
 
     // result.access_token is the token, get the endpoint
     token = result.access_token;
+	
+	var fs = require('fs');
+	fs.writeFile("token.txt", token, function(err) {
+		if(err) {
+			return console.log(err);
+		}
+
+    console.log("The file was saved!");
+	}); 
+	
     var sendreq = { method: "GET", uri: endpoints_uri + "?access_token=" + result.access_token };
     request(sendreq, function (err, res1, body) {
       var endpoints = JSON.parse(body);
@@ -67,13 +107,26 @@ app.get('/callback', function (req, res) {
 	  
 	accessURL = 'https://graph.api.smartthings.com/' + access_url;
 	apiURL = endpoints[0].uri;
+	//var fs = require('fs');
+	fs.writeFile("accessURL.txt", apiURL, function(err) {
+		if(err) {
+			return console.log(err);
+		}
+
+    console.log("The file was saved!");
+	}); 
+	
       res.send('<pre>https://graph.api.smartthings.com/' + access_url + '</pre><br><pre>Token ' + token + '</pre><br/><a href="/devices">Get Devices</a><br/><a href="/endpoints">Get Endpoints</a><br/>');
     });
   }
 });
 
 app.get('/', function (req, res) {
+	if(!token) { 
   res.send('<a href="/auth">Connect with SmartThings</a>');
+	} else {
+		res.send('<pre>' + apiURL +'</pre><br><pre>Token ' + token + '</pre><br/><a href="/devices">Get Devices</a><br/><a href="/endpoints">Get Endpoints</a><br/>');
+	}
 });
 
 app.get('/endpoints', function(req, res) {
