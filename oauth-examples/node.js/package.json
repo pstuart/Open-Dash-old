@@ -1,0 +1,11 @@
+{
+  "name": "SmartThings",
+  "description": "Gets TokenId",
+  "main": "stoauth.js",
+  "dependencies": {
+    "express": "4.12.2",
+    "request": "2.55.0",
+    "JSON": "1.0.0",
+    "simple-oauth2" : "^0.6.0"
+  }
+}
