@@ -116,7 +116,7 @@ app.get('/callback', function (req, res) {
     console.log("The file was saved!");
 	}); 
 	
-      res.send('<pre>https://graph.api.smartthings.com/' + access_url + '</pre><br><pre>Token ' + token + '</pre><br/><a href="/devices">Get Devices</a><br/><a href="/endpoints">Get Endpoints</a><br/><a href="/updates">Get Updates</a><br/>');
+      res.send('<pre>https://graph.api.smartthings.com/' + access_url + '</pre><br><pre>Token ' + token + '</pre><br/><a href="/devices">Get Devices</a><br/><a href="/allDevices">Get All Devices</a><br/><a href="/endpoints">Get Endpoints</a><br/><a href="/updates">Get Updates</a><br/>');
     });
   }
 });
@@ -125,7 +125,7 @@ app.get('/', function (req, res) {
 	if(!token) { 
   res.send('<a href="/auth">Connect with SmartThings</a>');
 	} else {
-		res.send('<pre>' + apiURL +'</pre><br><pre>Token ' + token + '</pre><br/><a href="/devices">Get Devices</a><br/><a href="/endpoints">Get Endpoints</a><br/><a href="/updates">Get Updates</a><br/>');
+		res.send('<pre>' + apiURL +'</pre><br><pre>Token ' + token + '</pre><br/><a href="/devices">Get Devices</a><br/><a href="/allDevices">Get All Devices</a><br/><a href="/endpoints">Get Endpoints</a><br/><a href="/updates">Get Updates</a><br/>');
 	}
 });
 
@@ -167,6 +167,29 @@ app.get('/devices', function(req, res) {
 	});
 	
 });
+
+app.get('/allDevices', function(req, res) {
+	var response = "";
+	var options = {
+		uri: apiURL + "/allDevices" + "?access_token=" + token,
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Bearer ' + token
+		}
+	};
+	request(options, function(err, res1, body) {
+		var devices = JSON.parse(body);
+		console.log(devices);
+		var deviceHTML = "<div>Devices</div>";
+		for(var i = 0; i < devices.length; i++) {
+			deviceHTML += "<div>id: "+devices[i].id + " Name: " + devices[i].displayName + " Type: " + devices[i].name + "</div>";
+		}
+		res.send(deviceHTML);
+	});
+	
+});
+
 
 app.get('/updates', function(req, res) {
 	var response = "";
