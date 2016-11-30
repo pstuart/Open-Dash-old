@@ -265,6 +265,11 @@ mappings {
         	GET: "updates"
         ]
     }
+    path("/allDevices") {
+    	action: [
+        	GET: "allDevices"
+        ]
+    }
 }
 
 /****************************
@@ -577,10 +582,33 @@ def updates() {
     render contentType: "text/json", data:  new JsonBuilder(state.updates).toPrettyString()
 }
 
+def allDevices() {
+	def allAttributes = []
+    def uniqueDevices = settings.collect { k, devices -> devices.findAll{k != "capability"} }.flatten().unique { it.id }
+    log.debug "${uniqueDevices.size()} Unique Devices" // is $uniqueDevices"
+    
+    uniqueDevices.each {
+        it.collect{ i ->
+            def deviceData = [:]
+            
+            deviceData << [name: i?.displayName, label: i?.name, type: i?.typeName, id: i?.id, date: i?.events()[0]?.date]
+            def attributes = [:]
+            i.supportedAttributes.each {
+            	attributes << [(it.toString()) : i.currentState(it.toString())?.value]
+            }
+            deviceData << [ "attributes" : attributes ]
+            deviceData << [ "commands" : i.supportedCommands.toString() ]
+            //log.debug deviceData
+            allAttributes << deviceData
+    	}
+    }
+    render contentType: "text/json", data:  new JsonBuilder(allAttributes).toPrettyString()
+}
+
 def handleEvent(evt) {
 	def js = eventJson(evt) //.inspect().toString()
     if (!state.updates) state.updates = []
-    def x = state.updates.findAll { js.id = it.id}
+    def x = state.updates.findAll { js.id == it.id }
     log.debug x
     
     if(x) {
