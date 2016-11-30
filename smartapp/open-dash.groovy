@@ -85,82 +85,102 @@ def initialize() {
 
 def handleIlluminanceEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleHumidityEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleTemperatureEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleThermCoolPoint(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleContactEvent(evt) {
     logField(evt) { it == "open" ? "1" : "0" }
+    handleEvent(evt)
 }
 
 def handleAccelerationEvent(evt) {
     logField(evt) { it == "active" ? "1" : "0" }
+    handleEvent(evt)
 }
 
 def handleMotionEvent(evt) {
     logField(evt) { it == "active" ? "1" : "0" }
+    handleEvent(evt)
 }
 
 def handleSwitchEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleSwitchLevelEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleDoorLockEvent(evt) {
     logField(evt) {it == "locked" ? "locked" : "unlocked" }
+    handleEvent(evt)
 }
 
 def handleBatteryEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handlePowerEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleEnergyEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handlePresenceEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleDioxideEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleLeakEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleSignalEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleSoundEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleColorEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 def handleColorTemperatureEvent(evt) {
     logField(evt) { it.toString() }
+    handleEvent(evt)
 }
 
 mappings {
@@ -238,6 +258,11 @@ mappings {
         action: [
             GET: "listRoutines",
             POST: "executeRoutine"
+        ]
+    }
+    path("/updates") {
+    	action: [
+        	GET: "updates"
         ]
     }
 }
@@ -547,11 +572,42 @@ def sendDeviceCommandSecondary() {
     }
 }
 
+def updates() {
+	//render out json of all updates since last html loaded
+    render contentType: "text/json", data:  new JsonBuilder(state.updates).toPrettyString()
+}
+
+def handleEvent(evt) {
+	def js = eventJson(evt) //.inspect().toString()
+    if (!state.updates) state.updates = []
+    def x = state.updates.findAll { js.id = it.id}
+    log.debug x
+    
+    if(x) {
+    	for(i in x) {
+            state.updates.remove(i) 
+        }
+    }
+    state.updates << js
+    log.debug state.updates
+}
+
+private eventJson(evt) {
+	def update = [:]
+    update.id = evt.deviceId
+    update.name = evt.name
+    update.value = evt.value
+    update.name = evt.displayName
+    update.date = evt.isoDate
+    //log.debug update
+    return update
+}
+
 // Callback to some url 
 private logField(evt, Closure c) {
-    log.debug "The souce of this event is ${evt.source} and it was ${evt.id}"
+    //log.debug "The souce of this event is ${evt.source} and it was ${evt.id}"
 
-    httpPostJson(uri: "#####SEND EVENTS TO YOUR ENDPOINT######",   body:[source: "smart_things", device: evt.deviceId, eventType: evt.name, value: evt.value, event_date: evt.isoDate, units: evt.unit, event_source: evt.source, state_changed: evt.isStateChange()]) {
-        log.debug evt.name+" Event data successfully posted"
-    }
+    //httpPostJson(uri: "#####SEND EVENTS TO YOUR ENDPOINT######",   body:[source: "smart_things", device: evt.deviceId, eventType: evt.name, value: evt.value, event_date: evt.isoDate, units: evt.unit, event_source: evt.source, state_changed: evt.isStateChange()]) {
+    //    log.debug evt.name+" Event data successfully posted"
+    //}
 }
