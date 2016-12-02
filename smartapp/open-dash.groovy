@@ -270,6 +270,11 @@ mappings {
         	GET: "allDevices"
         ]
     }
+    path("/dash") {
+    	action: [
+        	GET: "dash"
+        ]
+    }
 }
 
 /****************************
@@ -579,7 +584,8 @@ def sendDeviceCommandSecondary() {
 
 def updates() {
 	//render out json of all updates since last html loaded
-    render contentType: "text/json", data:  new JsonBuilder(state.updates).toPrettyString()
+    render contentType: "text/json", data:  "updates(" +new JsonBuilder(state.updates).toPrettyString() + ");"
+    //render contentType: "text/plain", data:  new JsonBuilder(state.updates).toPrettyString()
 }
 
 def allDevices() {
@@ -602,7 +608,8 @@ def allDevices() {
             allAttributes << deviceData
     	}
     }
-    render contentType: "text/json", data:  new JsonBuilder(allAttributes).toPrettyString()
+    render contentType: "text/json", data: new JsonBuilder(allAttributes).toPrettyString()
+    //render contentType: "text/json", data:  "updates(" +new JsonBuilder(allAttributes) + ");"
 }
 
 def handleEvent(evt) {
@@ -638,4 +645,54 @@ private logField(evt, Closure c) {
     //httpPostJson(uri: "#####SEND EVENTS TO YOUR ENDPOINT######",   body:[source: "smart_things", device: evt.deviceId, eventType: evt.name, value: evt.value, event_date: evt.isoDate, units: evt.unit, event_source: evt.source, state_changed: evt.isStateChange()]) {
     //    log.debug evt.name+" Event data successfully posted"
     //}
+}
+
+def dash() {
+	//call this from endpoint url, ex. https://graph.api.smartthings.com:443/api/smartapps/installations/<smartappid>/dash?access_token=<token>  this would be normally gotten via the initial oauth2 flow.
+	render contentType: "text/html", data: '''
+    	<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript">        
+        function updates(msg) {
+            var deviceList = "";
+            $(msg).each(function (i, data) {
+                var attrib = "";
+                $.each(data.attributes, function(k, v) { 
+                    attrib += k + " : " + v +" , ";
+                });
+                deviceList += "<div id='" + data.id + "'>" + data.name + "<div class='attribs'>" + attrib + "</div></div>";
+                        })
+                        $('#devices').html(deviceList);
+        }
+        
+        $(document).ready(function () {
+            $.ajax({
+                    url: "allDevices",
+                    type: "get",
+                    dataType: "json",
+                    contentType: "text/json"
+
+                })
+                .done(function (msg) {
+                    updates(msg);
+                })
+                .fail(function (jqXHR, status, err) {
+                    alert("Failed: " + status + err);
+                })
+        });
+    </script>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="dashboard">
+            <div id="devices">loading...</div>
+        </div>
+    </div>
+</body>
+</html>
+    '''
 }
