@@ -19,7 +19,7 @@
 import groovy.json.JsonBuilder
 
 definition(
-    name: "Open-Dash",
+    name: "Open-Dash ${appVersion()}",
     namespace: "opendash",
     author: "Open-Dash",
     description: "Open-Dash",
@@ -27,29 +27,80 @@ definition(
     iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
     iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
     )
+def appVersion() {"0.0.1"}
 
-preferences {
-    section("Allow Endpoint to Control These Things...") {
-        input "switches", "capability.switch", title: "Which Switches?", multiple: true, required: false
-        input "dimmers", "capability.switchLevel", title: "Which Dimmers?", multiple: true, required: false
-        input "thermostats", "capability.thermostat", title: "Which Thermostats?", multiple: true, required: false
-        input "motions", "capability.motionSensor", title: "Which Motions?", multiple: true, required: false
-        input "accelerations", "capability.accelerationSensor", title: "Which Accelerations?", multiple: true, required: false
-        input "contacts", "capability.contactSensor", title: "Which Contacts?", multiple: true, required: false
-        input "illuminants", "capability.illuminanceMeasurement", title: "Which Illuminance Sensors?", multiple: true, required: false
-        input "temperatures", "capability.temperatureMeasurement", title: "Which Temperatures?", multiple: true, required: false
-        input "humidities", "capability.relativeHumidityMeasurement", title: "Which Humidities?", multiple: true, required: false
-        input "presences", "capability.presenceSensor", title: "Which Presence?", multiple: true, required: false
-        input "locks", "capability.lock", title: "Which Locks?", multiple: true, required: false
-        input "batteries", "capability.battery", title: "Which Batteries?", multiple: true, required: false
-        input "powers", "capability.powerMeter", title: "Power Meters", required:false, multiple: true
-        input "energys", "capability.energyMeter", title: "Energy Meters", required:false, multiple: true
-        input "dioxides", "capability.carbonDioxideMeasurement", title: "Co2 Measurement", required: false, multiple: true
-        input "signals", "capability.signalStrength", title: "Signal Strength", required: false, multiple: true
-        input "leaks", "capability.waterSensor", title: "Water Detection", required: false, multiple: true
-        input "sounds", "capability.soundPressureLevel", title: "Sound Pressure", required: false, multiple: true
-        input "colors", "capability.colorControl", title: "Color", required: false, multiple: true
-        input "colorTemperatures", "capability.colorTemperature", title: "Color Temperature", required: false, multiple: true
+private def getCapabilities() {
+	[   //Capability Prefrence Reference			Display Name					Subscribed Name						Subscribe Attribute        
+    	        ["capability.accelerationSensor",			"Accelaration Sensor",			"accelerations",			"acceleration"						],
+        ["capability.actuator",						"Actuator",						"actuators",						""						],
+        ["capability.alarm",						"Alarm",						"alarms",							"alarm"						],
+        ["capability.audioNotification",			"Audio Notification",			"audioNotifications",				""						],
+        ["capability.battery",						"Battery",						"batteries",						"battery"						],
+        ["capability.beacon",						"Beacon",						"beacons",							"presence"						],
+        ["capability.button",						"Button",						"buttons",							"button"						],
+        ["capability.carbonDioxideMeasurement",		"Carbon Dioxide Measurement",	"carbonDioxideMeasurements",		"carbonDioxide"						],
+        ["capability.carbonMonoxideDetector",		"Carbon Monoxide Detector",		"carbonMonoxideDetectors",			"carbonMonoxide"						],
+        ["capability.colorControl",					"Color Control",				"colorControls",					""						],
+        ["capability.colorTemperature",				"Color Temperature",			"colorTemperatures",				"colorTemperature"						],
+        ["capability.consumable",					"Consumable",					"consumables",						"consumable"						],
+        ["capability.contactSensor",	  			"Contact",						"contactSensors",					"contact"						],
+        ["capability.doorControl",	  				"Door Control",					"doorControls",						"door"						],
+        ["capability.energyMeter",					"Energy Meter",					"energyMeters",						"energy"						],
+        ["capability.estimatedTimeOfArrival",		"ETA",							"estimatedTimeOfArrivals",			"eta"						],
+        ["capability.garageDoorControl",			"Garage Door Control",			"garageDoorControls",				"door"						],
+        ["capability.illuminanceMeasurement",		"Illuminance",					"illuminanceMeasurements",			"illuminance"						],
+        ["capability.imageCapture",					"Image Capture",				"imageCaptures",					"image"						],
+        ["capability.indicator",					"Indicator",					"indicators",						"indicatorStatus"						],
+        ["capability.lock" ,						"Lock",							"locks",							"lock"						],
+        ["capability.mediaController" ,				"Media Controller",				"mediaControllers",					""						],
+        ["capability.momentary" ,					"Momentary",					"momentaries",						""						],
+        ["capability.motionSensor",					"Motion",						"motionSensors",					"motion"						],
+        ["capability.musicPlayer",					"Music Player",					"musicPlayer",						""						],
+        ["capability.pHMeasurement",				"pH Measurement",				"pHMeasurements",					"pH"						],
+        ["capability.motionSensor",					"Motion",						"motionSensors",					""						],
+        ["capability.powerMeter",					"Power Meter",					"powerMeters",						"power"						],
+        ["capability.power",						"Power",						"powers",							"powerSource"						],
+        ["capability.presenceSensor",				"Presence",						"presenceSensors",					"presence"						],
+        ["capability.relativeHumidityMeasurement",	"Humidity",						"relativeHumidityMeasurements",		"humidity"						],
+        ["capability.relaySwitch",					"Relay Switch",					"relaySwitches",					"switch"						],
+        ["capability.sensor",						"Sensor",						"sensors",							""						],
+        ["capability.shockSensor",					"Shock Sensor",					"shockSensors",						"shock"						],
+        ["capability.signalStrength",				"Signal Strength",				"signalStrengths",					""						],
+        ["capability.sleepSensor",					"Sleep Sensor",					"sleepSensors",						"sleeping"						],
+        ["capability.smokeDetector",				"Smoke Detector",				"smokeDetectors",					"smoke"						],
+        ["capability.soundSensor",					"Sound Sensor",					"soundSensors",						"sound"						],
+        ["capability.speechRecognition",			"Speech Recognition",			"speechRecognitions",				"phraseSpoken"						],
+        ["capability.stepSensor",					"Step Sensor",					"stepSensors",						"steps"						],
+        ["capability.switch",						"Switchs", 						"switches",							"switch"						],
+        ["capability.switchLevel",					"Level",						"switchLevels",						"level"						],
+        ["capability.soundPressureLevel",			"Sound Pressure Level",			"soundPressureLevels",				"soundPressureLevel"						],
+        ["capability.tamperAlert",					"Tamper Alert",					"tamperAlert",						"tamper"						],
+        ["capability.temperatureMeasurement" , 		"Temperature", 					"temperatureMeasurements",			"temperature"						],
+        ["capability.thermostat" , 					"Thermostat", 					"thermostats",						""						],
+        ["capability.thermostatCoolingSetpoint" , 	"Thermostat Cooling Setpoint", 	"thermostatCoolingSetpoints",		"coolingSetpoint"						],
+        ["capability.thermostatFanMode" , 			"Thermostat Fan Mode", 			"thermostatFanModes",				"thermostatFanMode"						],
+        ["capability.thermostatHeatingSetpoint" , 	"Thermostat Heating Setpoint", 	"thermostatHeatingSetpoints",		"heatingSetpoint"						],
+        ["capability.thermostatMode" , 				"Thermostat Mode", 				"thermostatModes",					"thermostatMode"						],
+        ["capability.thermostatOperatingState",		"Thermostat Operating State",	"thermostatOperatingStates",		"thermostatOperatingState"						],
+        ["capability.thermostatSetpoint",			"Thermostat Setpoint",			"thermostatSetpoints",				"thermostatSetpoint"						],
+        ["capability.threeAxis",					"Three Axis",					"threeAxises",						"threeAxis"						],
+        ["capability.tone",							"Tone",							"tones",							""						],
+        ["capability.touchSensor",					"Touch Sensor",					"touchSensors",						"touch"						],
+        ["capability.trackingMusicPlayer",			"Tracking Music Player",		"trackingMusicPlayers",				""						],
+        ["capability.ultravioletIndex",				"Ultraviolet Index",			"ultravioletIndexes",				"ultravioletIndex"						],
+        ["capability.soundPressureLevel",			"Sound Pressure Level",			"soundPressureLevels",				""						],
+        ["capability.valve",						"Valve",						"valves",							"contact"						],
+        ["capability.voltageMeasurement",			"Voltage Measurement",			"voltageMeasurements",				"voltage"						],
+        ["capability.waterSensor",					"Water Sensor",					"waterSensors",						"water"						],
+        ["capability.windowShade",					"Window Shade",					"windowShades",						"windowShade"						],
+    ]  
+}
+
+ preferences {
+     section("Allow Endpoint to Control These Things by Their Capabilities (You only need to choose one capability to get access to full device, however, selecting all capabilities will not create duplicate devices...") {
+         for (cap in capabilities) {
+             input cap[2], cap[0], title: "Select ${cap[1]} Devices", multiple:true, required: false
+         }
     }
 }
 
@@ -63,26 +114,35 @@ def updated() {
 }
 
 def initialize() {
-    subscribe(switches, "switch", handleSwitchEvent)
-    subscribe(dimmers, "level", handleSwitchLevelEvent)
-    subscribe(motions, "motion", handleMotionEvent)
-    subscribe(accelerations, "acceleration", handleAccelerationEvent)
-    subscribe(contacts, "contact", handleContactEvent)
-    subscribe(illuminants, "illuminance", handleIlluminanceEvent)
-    subscribe(temperatures, "temperature", handleTemperatureEvent)
-    subscribe(humidities, "humidity", handleHumidityEvent)
-    subscribe(locks, "locks", handleDoorLockEvent)
-    subscribe(batteries, "battery", handleBatteryEvent)
-    subscribe(powers, "power", handlePowerEvent)
-    subscribe(energys, "energy", handleEnergyEvent)
-    subscribe(presences, "presence", handlePresenceEvent)
-    subscribe(dioxides, "dioxide", handleDioxideEvent)
-    subscribe(signals, "signal", handleSignalEvent)
-    subscribe(leaks, "leak", handleLeakEvent)
-    subscribe(sounds, "sound", handleSoundEvent)
-    subscribe(colors, "color", handleColorEvent)
+	//only subscribe to those capabilities that can send events we want to get updates from.
+    for (cap in capabilities) {
+    	if(cap[3] != "") {
+    	subscribe(cap[2], cap[3], handleEvent)
+        }
+    }
+    /*
+    subscribe(switchs, "switch", handleSwitchEvent)
+    subscribe(dimmer, "level", handleSwitchLevelEvent)
+    subscribe(motion, "motion", handleMotionEvent)
+    subscribe(acceleration, "acceleration", handleAccelerationEvent)
+    subscribe(contact, "contact", handleContactEvent)
+    subscribe(illuminant, "illuminance", handleIlluminanceEvent)
+    subscribe(temperature, "temperature", handleTemperatureEvent)
+    subscribe(humidity, "humidity", handleHumidityEvent)
+    subscribe(lock, "locks", handleDoorLockEvent)
+    subscribe(battery, "battery", handleBatteryEvent)
+    subscribe(power, "power", handlePowerEvent)
+    subscribe(energy, "energy", handleEnergyEvent)
+    subscribe(presence, "presence", handlePresenceEvent)
+    subscribe(dioxide, "dioxide", handleDioxideEvent)
+    subscribe(signal, "signal", handleSignalEvent)
+    subscribe(leak, "leak", handleLeakEvent)
+    subscribe(sound, "sound", handleSoundEvent)
+    subscribe(color, "color", handleColorEvent)
+    */
 }
 
+/*
 def handleIlluminanceEvent(evt) {
     logField(evt) { it.toString() }
     handleEvent(evt)
@@ -182,6 +242,41 @@ def handleColorTemperatureEvent(evt) {
     logField(evt) { it.toString() }
     handleEvent(evt)
 }
+*/
+
+def handleEvent(evt) {
+	//Find what we know about evt
+    /*log.debug evt
+    log.debug evt.date // Sun Mar 01 22:43:37 UTC 2015
+    log.debug evt.name // motion (capability type)
+    log.debug evt.displayName // name of the device in ST "Office aeon multi"
+    log.debug evt.value // the value of the capability type, open close inactive, active, etc.
+    log.debug evt.descriptionText // ex. Master Bath 1 switch is on
+    log.debug evt.description // zigbee or zwave raw data
+    log.debug evt.unit // could F or others
+    log.debug evt.type // null?
+    log.debug evt.user // null?
+    */
+    //log.debug evt.jsonValue
+    
+    //send to webhook api
+    logField(evt) { it.toString() }
+    
+    
+    def js = eventJson(evt) //.inspect().toString()
+    if (!state.updates) state.updates = []
+    def x = state.updates.findAll { js.id == it.id }
+    log.debug x
+    
+    if(x) {
+    	for(i in x) {
+            state.updates.remove(i) 
+        }
+    }
+    state.updates << js
+    log.debug state.updates
+    
+}
 
 mappings {
     // location
@@ -268,11 +363,6 @@ mappings {
     path("/allDevices") {
     	action: [
         	GET: "allDevices"
-        ]
-    }
-    path("/dash") {
-    	action: [
-        	GET: "dash"
         ]
     }
 }
@@ -612,20 +702,6 @@ def allDevices() {
     //render contentType: "text/json", data:  "updates(" +new JsonBuilder(allAttributes) + ");"
 }
 
-def handleEvent(evt) {
-	def js = eventJson(evt) //.inspect().toString()
-    if (!state.updates) state.updates = []
-    def x = state.updates.findAll { js.id == it.id }
-    log.debug x
-    
-    if(x) {
-    	for(i in x) {
-            state.updates.remove(i) 
-        }
-    }
-    state.updates << js
-    log.debug state.updates
-}
 
 private eventJson(evt) {
 	def update = [:]
@@ -645,54 +721,4 @@ private logField(evt, Closure c) {
     //httpPostJson(uri: "#####SEND EVENTS TO YOUR ENDPOINT######",   body:[source: "smart_things", device: evt.deviceId, eventType: evt.name, value: evt.value, event_date: evt.isoDate, units: evt.unit, event_source: evt.source, state_changed: evt.isStateChange()]) {
     //    log.debug evt.name+" Event data successfully posted"
     //}
-}
-
-def dash() {
-	//call this from endpoint url, ex. https://graph.api.smartthings.com:443/api/smartapps/installations/<smartappid>/dash?access_token=<token>  this would be normally gotten via the initial oauth2 flow.
-	render contentType: "text/html", data: '''
-    	<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <meta charset="utf-8" />
-    <title></title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script type="text/javascript">        
-        function updates(msg) {
-            var deviceList = "";
-            $(msg).each(function (i, data) {
-                var attrib = "";
-                $.each(data.attributes, function(k, v) { 
-                    attrib += k + " : " + v +" , ";
-                });
-                deviceList += "<div id='" + data.id + "'>" + data.name + "<div class='attribs'>" + attrib + "</div></div>";
-                        })
-                        $('#devices').html(deviceList);
-        }
-        
-        $(document).ready(function () {
-            $.ajax({
-                    url: "allDevices",
-                    type: "get",
-                    dataType: "json",
-                    contentType: "text/json"
-
-                })
-                .done(function (msg) {
-                    updates(msg);
-                })
-                .fail(function (jqXHR, status, err) {
-                    alert("Failed: " + status + err);
-                })
-        });
-    </script>
-</head>
-<body>
-    <div id="wrapper">
-        <div id="dashboard">
-            <div id="devices">loading...</div>
-        </div>
-    </div>
-</body>
-</html>
-    '''
 }
