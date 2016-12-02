@@ -31,7 +31,7 @@ def appVersion() {"0.0.1"}
 
 private def getCapabilities() {
 	[   //Capability Prefrence Reference			Display Name					Subscribed Name						Subscribe Attribute        
-    	        ["capability.accelerationSensor",			"Accelaration Sensor",			"accelerations",			"acceleration"						],
+    	["capability.accelerationSensor",			"Accelaration Sensor",			"accelerations",					"acceleration"						],
         ["capability.actuator",						"Actuator",						"actuators",						""						],
         ["capability.alarm",						"Alarm",						"alarms",							"alarm"						],
         ["capability.audioNotification",			"Audio Notification",			"audioNotifications",				""						],
@@ -117,7 +117,8 @@ def initialize() {
 	//only subscribe to those capabilities that can send events we want to get updates from.
     for (cap in capabilities) {
     	if(cap[3] != "") {
-    	subscribe(cap[2], cap[3], handleEvent)
+        log.debug cap
+    	subscribe(settings[cap[2]], cap[3], handleEvent)
         }
     }
     /*
