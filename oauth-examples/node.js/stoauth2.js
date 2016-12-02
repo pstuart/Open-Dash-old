@@ -181,11 +181,26 @@ app.get('/allDevices', function(req, res) {
 	request(options, function(err, res1, body) {
 		var devices = JSON.parse(body);
 		console.log(devices);
-		var deviceHTML = "<div>Devices</div>";
+		var deviceHTML = "<html><head></head><body><div>Devices</div>";
 		for(var i = 0; i < devices.length; i++) {
-			deviceHTML += "<div>id: "+devices[i].id + " Name: " + devices[i].displayName + " Type: " + devices[i].name + "</div>";
+			var attribs = "<div>attributes : <br/>";
+			for (a in devices[i].attributes) {
+				attribs += a + ": " + devices[i].attributes[a] + "<br/>";
+			}
+			attribs += "</div>";
+			deviceHTML += "<div id='"+devices[i].id + "' ><div>Name: " + devices[i].name + "</div><div>id: " + devices[i].id + "</div><div>Type: " + devices[i].type + "</div>"+ attribs +"</div><br/>";
 		}
+		deviceHTML += "</body></html>"
 		res.send(deviceHTML);
+		
+		fs.writeFile("devices.txt", body, function(err) {
+		if(err) {
+			return console.log(err);
+		}
+
+    console.log("The file was saved!");
+	}); 
+		
 	});
 	
 });
