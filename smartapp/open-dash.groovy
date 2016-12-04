@@ -281,91 +281,26 @@ def handleEvent(evt) {
 
 mappings {
     // location
-    path("/locations") {
-        action: [
-            GET: "listLocation"
-        ]
-    }
-    // modes
-    path("/modes") {
-        action: [
-            GET: "listModes"
-        ]
-    }
-    path("/modes/:id") {
-        action: [
-            get: "switchMode"
-        ]
-    }
+    path("/locations") 							{	action: [	GET: "listLocation"        														]}
+    // modes    
+    path("/modes") 								{   action: [   GET: "listModes"        														]}
+    path("/modes/:id") 							{	action: [   GET: "switchMode"        														]}
     // hub
-    path("/hubs") {
-        action: [
-            GET: "listHubs"
-        ]
-    }
-    path("/hubs/:id") {
-        action: [
-            GET: "getHub"
-        ]
-    }
-    // devices
-   
-    path("/devices") {
-        action: [
-            GET: "listDevices"
-        ]
-    }
-    path("/devices/:id") {
-        action: [
-            GET: "listDevices",
-        ]
-    }
-    path("/devices/:id/commands") {
-        action: [
-            GET: "listDeviceCommands"
-        ]
-    }
-   
-    
-    path("/devices/:id/:command"){
-        action: [
-            GET: "sendDeviceCommand"   
-        ]
-    }
-    
-    path("/devices/:id/:command/:secondary"){
-        action: [
-            GET: "sendDeviceCommandSecondary"   
-        ]
-    }
-    
-    path("/devices/:id/events") {
-        action: [
-            GET: "listDeviceEvents"
-        ]
-    }
+    path("/hubs") 								{   action: [   GET: "listHubs"		       														]}
+    path("/hubs/:id") 							{   action: [   GET: "getHub"        															]}
+    // devices  
+    path("/devices") 							{   action: [   GET: "listDevices"        														]}
+    path("/devices/:id") 						{  	action: [   GET: "listDevices"        														]}
+    path("/devices/:id/commands") 				{	action: [	GET: "listDeviceCommands"        												]}    
+    path("/devices/:id/:command")				{   action: [	GET: "sendDeviceCommand"          												]}    
+    path("/devices/:id/:command/:secondary")	{   action: [   GET: "sendDeviceCommandSecondary"           									]}   
+    path("/devices/:id/events") 				{   action: [   GET: "listDeviceEvents"        													]}
     // Routines
-    path("/routines") {
-        action: [
-            GET: "listRoutines"
-        ]
-    }
-    path("/routines/:id") {
-        action: [
-            GET: "listRoutines",
-            POST: "executeRoutine"
-        ]
-    }
-    path("/updates") {
-    	action: [
-        	GET: "updates"
-        ]
-    }
-    path("/allDevices") {
-    	action: [
-        	GET: "allDevices"
-        ]
-    }
+    path("/routines") 							{   action: [   GET: "listRoutines"        														]}
+    path("/routines/:id") 						{   action: [   GET: "listRoutines",            	POST: "executeRoutine"        				]}
+    path("/updates") 							{   action: [   GET: "updates"        															]}
+    path("/allDevices") 						{   action: [   GET: "allDevices"        														]}
+    path("/devicetypes")						{	action: [ 	GET: "listDeviceTypes" 															]}
 }
 
 /****************************
@@ -530,6 +465,7 @@ def executeRoutine() {
 /****************************
 * Device Methods
 ****************************/
+/* this just returns key, not very useful
 def listDeviceTypes() {
     def results = []
     settings.each {
@@ -538,6 +474,7 @@ def listDeviceTypes() {
     log.debug "Returning TYPES: $results"
     results
 }
+*/
 
 def listDevices() {
     def id = params.id
@@ -702,6 +639,23 @@ def allDevices() {
     render contentType: "text/json", data: new JsonBuilder(allAttributes).toPrettyString()
     //render contentType: "text/json", data:  "updates(" +new JsonBuilder(allAttributes) + ");"
 }
+
+// Maybe a better listDeviceTypes?
+def listDeviceTypes() {
+	def deviceData = []
+    def uniqueDevices = settings.collect { k, devices -> devices.findAll{k != "capability"} }.flatten().unique { it.id }
+    log.debug "${uniqueDevices.size()} Unique Devices" // is $uniqueDevices"
+    
+    uniqueDevices.each {
+        it.collect{ i ->    
+        	if (!deviceData.contains(i?.typeName)) {
+            	deviceData << i?.typeName 
+            }
+    	} //.flatten().unique { it }
+    }
+    render contentType: "text/json", data: new JsonBuilder(deviceData).toPrettyString()
+}
+
 
 
 private eventJson(evt) {
