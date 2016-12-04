@@ -688,7 +688,7 @@ def allDevices() {
         it.collect{ i ->
             def deviceData = [:]
             
-            deviceData << [name: i?.displayName, label: i?.name, type: i?.typeName, id: i?.id, date: i?.events()[0]?.date]
+            deviceData << [name: i?.displayName, label: i?.name, type: i?.typeName, id: i?.id, date: i?.events()[0]?.date, model: i?.modelName, manufacturer: i?.manufacturerName ]
             def attributes = [:]
             i.supportedAttributes.each {
             	attributes << [(it.toString()) : i.currentState(it.toString())?.value]
