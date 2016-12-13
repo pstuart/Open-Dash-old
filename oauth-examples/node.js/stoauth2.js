@@ -11,8 +11,8 @@
 
 // expected commandline node.js script CLIENT_ID CLIENT_SECRET
 if (process.argv.length != 4) {
-  console.log("usage: " + process.argv[0] + " " + process.argv[1] + " CLIENT_ID CLIENT_SECRET");
-  process.exit();
+    console.log("usage: " + process.argv[0] + " " + process.argv[1] + " CLIENT_ID CLIENT_SECRET");
+    process.exit();
 }
 
 var CLIENT_ID = process.argv[2];
@@ -23,209 +23,222 @@ var express = require('express'),
   app = express();
 var token;
 var apiURL;
+var rfs = require('./readFiles.js');
 var fs = require('fs');
-//var path = require('path');
 
-//var filePath = path.join(__dirname, 'token.txt');
+rfs.readFiles(["token.txt", "accessURL.txt"], function (err, contents) {
+    if (!err) {
+        token = contents['token.txt'].toString();
+        apiURL = contents['accessURL.txt'].toString();
+        console.log('Access URL is: https:\\' + apiURL + "\html?accessToken=" + token);
+        accessURL = apiURL;
+    }
+})
 
-fs.readFile('token.txt', {encoding: 'utf-8'}, function(err,data){
-    if (!err){
-    console.log('received data: ' + data);
-	token = data;
-	console.log('Token is ' + token);
-    //response.writeHead(200, {'Content-Type': 'text/html'});
-    //response.write(data);
-    //response.end();
-    }else{
-        console.log(err);
-    }
-});
-fs.readFile('accessURL.txt', {encoding: 'utf-8'}, function(err,data){
-    if (!err){
-    console.log('received data: ' + data);
-	apiURL = data;
-	console.log('Token is ' + token);
-    //response.writeHead(200, {'Content-Type': 'text/html'});
-    //response.write(data);
-    //response.end();
-    }else{
-        console.log(err);
-    }
-});
 
 var accessURL;
 var endpoints_uri = 'https://graph.api.smartthings.com/api/smartapps/endpoints';
 
 var oauth2 = require('simple-oauth2')({
-  clientID: CLIENT_ID,
-  clientSecret: CLIENT_SECRET,
-  site: 'https://graph.api.smartthings.com'
+    clientID: CLIENT_ID,
+    clientSecret: CLIENT_SECRET,
+    site: 'https://graph.api.smartthings.com'
 });
- 
+
 // Authorization uri definition 
 var authorization_uri = oauth2.authCode.authorizeURL({
-  redirect_uri: 'http://localhost:3000/callback',
-  scope: 'app',
-  state: '3(#0/!~'
+    redirect_uri: 'http://localhost:3000/callback',
+    scope: 'app',
+    state: '3(#0/!~'
 });
- 
+
 // Initial page redirecting to Github 
 app.get('/auth', function (req, res) {
-  res.redirect(authorization_uri);
+    res.redirect(authorization_uri);
 });
- 
+
 // Callback service parsing the authorization token and asking for the access token 
 app.get('/callback', function (req, res) {
-  var code = req.query.code;
-  // console.log('/callback got code' + code);
-  oauth2.authCode.getToken({
-    code: code,
-    redirect_uri: 'http://localhost:3000/callback'
-  }, saveToken);
+    var code = req.query.code;
+    // console.log('/callback got code' + code);
+    oauth2.authCode.getToken({
+        code: code,
+        redirect_uri: 'http://localhost:3000/callback'
+    }, saveToken);
 
-  function saveToken(error, result) {
-    if (error) { console.log('Access Token Error', error.message); }
+    function saveToken(error, result) {
+        if (error) { console.log('Access Token Error', error.message); }
 
-    // result.access_token is the token, get the endpoint
-    token = result.access_token;
-	
-	var fs = require('fs');
-	fs.writeFile("token.txt", token, function(err) {
-		if(err) {
-			return console.log(err);
-		}
+        // result.access_token is the token, get the endpoint
+        token = result.access_token;
 
-    console.log("The file was saved!");
-	}); 
-	
-    var sendreq = { method: "GET", uri: endpoints_uri + "?access_token=" + result.access_token };
-    request(sendreq, function (err, res1, body) {
-      var endpoints = JSON.parse(body);
-	  console.log(endpoints);
-      // we just show the final access URL and Bearer code
-      var access_url = endpoints[0].url
-	  
-	accessURL = 'https://graph.api.smartthings.com/' + access_url;
-	apiURL = endpoints[0].uri;
-	//var fs = require('fs');
-	fs.writeFile("accessURL.txt", apiURL, function(err) {
-		if(err) {
-			return console.log(err);
-		}
+        var fs = require('fs');
+        fs.writeFile("token.txt", token, function (err) {
+            if (err) {
+                return console.log(err);
+            }
 
-    console.log("The file was saved!");
-	}); 
-	
-      res.send('<pre>https://graph.api.smartthings.com/' + access_url + '</pre><br><pre>Token ' + token + '</pre><br/><a href="/devices">Get Devices</a><br/><a href="/allDevices">Get All Devices</a><br/><a href="/endpoints">Get Endpoints</a><br/><a href="/updates">Get Updates</a><br/>');
-    });
-  }
+            console.log("The file was saved!");
+        });
+
+        var sendreq = { method: "GET", uri: endpoints_uri + "?access_token=" + result.access_token };
+        request(sendreq, function (err, res1, body) {
+            var endpoints = JSON.parse(body);
+            console.log(endpoints);
+            // we just show the final access URL and Bearer code
+            var access_url = endpoints[0].url
+
+            accessURL = 'https://graph.api.smartthings.com/' + access_url;
+            apiURL = endpoints[0].uri;
+            //var fs = require('fs');
+            fs.writeFile("accessURL.txt", apiURL, function (err) {
+                if (err) {
+                    return console.log(err);
+                }
+
+                console.log("The file was saved!");
+            });
+            res.writeHeader(200, { "Content-Type": "text/html" });
+            res.write('<pre>AccessURL is :' + accessURL + '</pre><pre>Token ' + token + '</pre>');
+            rfs.readFiles(["views/main.html"], function (err, contents) {
+                if (!err) {
+                    res.write(contents['views/main.html'].toString());
+                }
+                res.end();
+            });
+
+        });
+    }
 });
 
 app.get('/', function (req, res) {
-	if(!token) { 
-  res.send('<a href="/auth">Connect with SmartThings</a>');
-	} else {
-		res.send('<pre>' + apiURL +'</pre><br><pre>Token ' + token + '</pre><br/><a href="/devices">Get Devices</a><br/><a href="/allDevices">Get All Devices</a><br/><a href="/endpoints">Get Endpoints</a><br/><a href="/updates">Get Updates</a><br/>');
-	}
+    res.writeHeader(200, {"Content-Type": "text/html"});  
+    if (!token) {
+        res.write('<a href="/auth">Connect with SmartThings</a>');
+        res.end();
+    } else {
+        res.write('<pre>AccessURL is :' + accessURL + '</pre><pre>Token ' + token + '</pre>');       
+        rfs.readFiles(["views/main.html"], function (err, contents) {
+            if (!err) {
+                res.write(contents['views/main.html'].toString());                
+            }
+            res.end();
+        });
+    }
 });
 
-app.get('/endpoints', function(req, res) {
-	var response = "";
-	var options = {
-		uri: endpoints_uri + "?access_token=" + token,
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + token
-		}
-	};
-	request(options, function(err, res1, body) {
-		var endpoints = JSON.parse(body);
-		res.send('endpoints are: ' + endpoints[0].location.name + endpoints[0].uri);
-	});
-	
+app.get('/endpoints', function (req, res) {
+    var response = "";
+    var options = {
+        uri: endpoints_uri + "?access_token=" + token,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+    };
+    request(options, function (err, res1, body) {
+        var endpoints = JSON.parse(body);
+        res.send('endpoints are: ' + endpoints[0].location.name + endpoints[0].uri);
+    });
+
 });
 
-app.get('/devices', function(req, res) {
-	var response = "";
-	var options = {
-		uri: apiURL + "/devices" + "?access_token=" + token,
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + token
-		}
-	};
-	request(options, function(err, res1, body) {
-		var devices = JSON.parse(body);
-		console.log(devices);
-		var deviceHTML = "<div>Devices</div>";
-		for(var i = 0; i < devices.length; i++) {
-			deviceHTML += "<div>id: "+devices[i].id + " Name: " + devices[i].displayName + " Type: " + devices[i].name + "</div>";
-		}
-		res.send(deviceHTML);
-	});
-	
+app.get('/devices', function (req, res) {
+    var response = "";
+    var options = {
+        uri: apiURL + "/devices" + "?access_token=" + token,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+    };
+    request(options, function (err, res1, body) {
+        var devices = JSON.parse(body);
+        console.log(devices);
+        var deviceHTML = "<div>Devices</div>";
+        for (var i = 0; i < devices.length; i++) {
+            deviceHTML += "<div>id: " + devices[i].id + " Name: " + devices[i].displayName + " Type: " + devices[i].name + "</div>";
+        }
+        res.send(deviceHTML);
+    });
+
 });
 
-app.get('/allDevices', function(req, res) {
-	var response = "";
-	var options = {
-		uri: apiURL + "/allDevices" + "?access_token=" + token,
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + token
-		}
-	};
-	request(options, function(err, res1, body) {
-		var devices = JSON.parse(body);
-		console.log(devices);
-		var deviceHTML = "<html><head></head><body><div>Devices</div>";
-		for(var i = 0; i < devices.length; i++) {
-			var attribs = "<div>attributes : <br/>";
-			for (a in devices[i].attributes) {
-				attribs += a + ": " + devices[i].attributes[a] + "<br/>";
-			}
-			attribs += "</div>";
-			deviceHTML += "<div id='"+devices[i].id + "' ><div>Name: " + devices[i].name + "</div><div>id: " + devices[i].id + "</div><div>Type: " + devices[i].type + "</div>"+ attribs +"</div><br/>";
-		}
-		deviceHTML += "</body></html>"
-		res.send(deviceHTML);
-		
-		fs.writeFile("devices.txt", body, function(err) {
-		if(err) {
-			return console.log(err);
-		}
+app.get('/allDevices', function (req, res) {
+    var response = "";
+    var options = {
+        uri: apiURL + "/allDevices" + "?access_token=" + token,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+    };
+    request(options, function (err, res1, body) {
+        var devices = JSON.parse(body);
+        //console.log(devices);
+        var deviceHTML = "<html><head></head><body><div>Devices</div>";
+        for (var i = 0; i < devices.length; i++) {
+            var attribs = "<div>attributes : <br/>";
+            for (a in devices[i].attributes) {
+                attribs += a + ": " + devices[i].attributes[a] + "<br/>";
+            }
+            attribs += "</div>";
+            deviceHTML += "<div id='" + devices[i].id + "' ><div>Name: " + devices[i].name + "</div><div>id: " + devices[i].id + "</div><div>Type: " + devices[i].type + "</div>" + attribs + "</div><br/>";
+        }
+        deviceHTML += "</body></html>"
+        res.send(deviceHTML);
 
-    console.log("The file was saved!");
-	}); 
-		
-	});
-	
+        for (var i in devices) {
+            if (!fs.existsSync("devices")) {
+                fs.mkdirSync("devices");
+            }
+            if (!fs.existsSync("devices/"  + devices[i].id)) {
+                fs.mkdirSync("devices/" + devices[i].id);
+            }
+            console.log(devices[i]);
+            fs.writeFile("devices/" + devices[i].id + "/device.json", JSON.stringify(devices[i],null,'\t'), function (err) {
+                if (err) {
+                    return console.log(err);
+                }
+            });
+        }
+        /*
+        fs.writeFile("devices.txt", body, function (err) {
+            if (err) {
+                return console.log(err);
+            }
+
+            console.log("The file was saved!");
+        });
+        */
+    });
+
 });
 
 
-app.get('/updates', function(req, res) {
-	var response = "";
-	var options = {
-		uri: apiURL + "/updates" + "?access_token=" + token,
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': 'Bearer ' + token
-		}
-	};
-	request(options, function(err, res1, body) {
-		var devices = JSON.parse(body);
-		console.log(devices);
-		var deviceHTML = "<div>Updates</div>";
-		for(var i = 0; i < devices.length; i++) {
-			deviceHTML += "<div>id: "+devices[i].id + " Name: " + devices[i].name + " Value: " + devices[i].value + " Date: " + devices[i].date + "</div>";
-		}
-		res.send(deviceHTML);
-	});
-	
+app.get('/updates', function (req, res) {
+    var response = "";
+    var options = {
+        uri: apiURL + "/updates" + "?access_token=" + token,
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        }
+    };
+    request(options, function (err, res1, body) {
+        var devices = JSON.parse(body);
+        console.log(devices);
+        var deviceHTML = "<div>Updates</div>";
+        for (var i = 0; i < devices.length; i++) {
+            deviceHTML += "<div>id: " + devices[i].id + " Name: " + devices[i].name + " Value: " + devices[i].value + " Date: " + devices[i].date + "</div>";
+        }
+        res.send(deviceHTML);
+    });
+
 });
 
 app.listen(3000);
