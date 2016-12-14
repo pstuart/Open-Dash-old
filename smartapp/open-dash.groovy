@@ -1,20 +1,20 @@
 /**
- *  Copyright 2016 Open-Dash.com
- *
- *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License. You may obtain a copy of the License at:
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
- *  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
- *  for the specific language governing permissions and limitations under the License.
- *
- *  Open-Dash API
- *
- *  Author: Open-Dash
- *  Originally from https://github.com/jodyalbritton/apismartapp/blob/master/endpoint.groovy
- */
+*  Copyright 2016 Open-Dash.com
+*
+*  Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License. You may obtain a copy of the License at:
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing, software distributed under the License is distributed
+*  on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License
+*  for the specific language governing permissions and limitations under the License.
+*
+*  Open-Dash API
+*
+*  Author: Open-Dash
+*  Originally from https://github.com/jodyalbritton/apismartapp/blob/master/endpoint.groovy
+*/
 
 import groovy.json.JsonBuilder
 
@@ -26,12 +26,12 @@ definition(
     category: "My Apps",
     iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
     iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
-    )
+)
 def appVersion() {"0.0.1"}
 
 private def getCapabilities() {
-	[   //Capability Prefrence Reference			Display Name					Subscribed Name						Subscribe Attribute        
-    	["capability.accelerationSensor",			"Accelaration Sensor",			"accelerations",					"acceleration"						],
+    [   //Capability Prefrence Reference			Display Name					Subscribed Name						Subscribe Attribute        
+        ["capability.accelerationSensor",			"Accelaration Sensor",			"accelerations",					"acceleration"						],
         ["capability.actuator",						"Actuator",						"actuators",						""						],
         ["capability.alarm",						"Alarm",						"alarms",							"alarm"						],
         ["capability.audioNotification",			"Audio Notification",			"audioNotifications",				""						],
@@ -96,11 +96,11 @@ private def getCapabilities() {
     ]  
 }
 
- preferences {
-     section("Allow Endpoint to Control These Things by Their Capabilities (You only need to choose one capability to get access to full device, however, selecting all capabilities will not create duplicate devices...") {
-         for (cap in capabilities) {
-             input cap[2], cap[0], title: "Select ${cap[1]} Devices", multiple:true, required: false
-         }
+preferences {
+    section("Allow Endpoint to Control These Things by Their Capabilities (You only need to choose one capability to get access to full device, however, selecting all capabilities will not create duplicate devices...") {
+        for (cap in capabilities) {
+            input cap[2], cap[0], title: "Select ${cap[1]} Devices", multiple:true, required: false
+        }
     }
 }
 
@@ -114,169 +114,169 @@ def updated() {
 }
 
 def initialize() {
-	//only subscribe to those capabilities that can send events we want to get updates from.
+    //only subscribe to those capabilities that can send events we want to get updates from.
     for (cap in capabilities) {
-    	if(cap[3] != "") {
-        log.debug cap
-    	subscribe(settings[cap[2]], cap[3], handleEvent)
+        if(cap[3] != "") {
+            log.debug cap
+            subscribe(settings[cap[2]], cap[3], handleEvent)
         }
     }
     /*
-    subscribe(switchs, "switch", handleSwitchEvent)
-    subscribe(dimmer, "level", handleSwitchLevelEvent)
-    subscribe(motion, "motion", handleMotionEvent)
-    subscribe(acceleration, "acceleration", handleAccelerationEvent)
-    subscribe(contact, "contact", handleContactEvent)
-    subscribe(illuminant, "illuminance", handleIlluminanceEvent)
-    subscribe(temperature, "temperature", handleTemperatureEvent)
-    subscribe(humidity, "humidity", handleHumidityEvent)
-    subscribe(lock, "locks", handleDoorLockEvent)
-    subscribe(battery, "battery", handleBatteryEvent)
-    subscribe(power, "power", handlePowerEvent)
-    subscribe(energy, "energy", handleEnergyEvent)
-    subscribe(presence, "presence", handlePresenceEvent)
-    subscribe(dioxide, "dioxide", handleDioxideEvent)
-    subscribe(signal, "signal", handleSignalEvent)
-    subscribe(leak, "leak", handleLeakEvent)
-    subscribe(sound, "sound", handleSoundEvent)
-    subscribe(color, "color", handleColorEvent)
-    */
+subscribe(switchs, "switch", handleSwitchEvent)
+subscribe(dimmer, "level", handleSwitchLevelEvent)
+subscribe(motion, "motion", handleMotionEvent)
+subscribe(acceleration, "acceleration", handleAccelerationEvent)
+subscribe(contact, "contact", handleContactEvent)
+subscribe(illuminant, "illuminance", handleIlluminanceEvent)
+subscribe(temperature, "temperature", handleTemperatureEvent)
+subscribe(humidity, "humidity", handleHumidityEvent)
+subscribe(lock, "locks", handleDoorLockEvent)
+subscribe(battery, "battery", handleBatteryEvent)
+subscribe(power, "power", handlePowerEvent)
+subscribe(energy, "energy", handleEnergyEvent)
+subscribe(presence, "presence", handlePresenceEvent)
+subscribe(dioxide, "dioxide", handleDioxideEvent)
+subscribe(signal, "signal", handleSignalEvent)
+subscribe(leak, "leak", handleLeakEvent)
+subscribe(sound, "sound", handleSoundEvent)
+subscribe(color, "color", handleColorEvent)
+*/
 }
 
 /*
 def handleIlluminanceEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleHumidityEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleTemperatureEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleThermCoolPoint(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleContactEvent(evt) {
-    logField(evt) { it == "open" ? "1" : "0" }
-    handleEvent(evt)
+logField(evt) { it == "open" ? "1" : "0" }
+handleEvent(evt)
 }
 
 def handleAccelerationEvent(evt) {
-    logField(evt) { it == "active" ? "1" : "0" }
-    handleEvent(evt)
+logField(evt) { it == "active" ? "1" : "0" }
+handleEvent(evt)
 }
 
 def handleMotionEvent(evt) {
-    logField(evt) { it == "active" ? "1" : "0" }
-    handleEvent(evt)
+logField(evt) { it == "active" ? "1" : "0" }
+handleEvent(evt)
 }
 
 def handleSwitchEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleSwitchLevelEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleDoorLockEvent(evt) {
-    logField(evt) {it == "locked" ? "locked" : "unlocked" }
-    handleEvent(evt)
+logField(evt) {it == "locked" ? "locked" : "unlocked" }
+handleEvent(evt)
 }
 
 def handleBatteryEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handlePowerEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleEnergyEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handlePresenceEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleDioxideEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleLeakEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleSignalEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleSoundEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleColorEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 
 def handleColorTemperatureEvent(evt) {
-    logField(evt) { it.toString() }
-    handleEvent(evt)
+logField(evt) { it.toString() }
+handleEvent(evt)
 }
 */
 
 def handleEvent(evt) {
-	//Find what we know about evt
+    //Find what we know about evt
     /*log.debug evt
-    log.debug evt.date // Sun Mar 01 22:43:37 UTC 2015
-    log.debug evt.name // motion (capability type)
-    log.debug evt.displayName // name of the device in ST "Office aeon multi"
-    log.debug evt.value // the value of the capability type, open close inactive, active, etc.
-    log.debug evt.descriptionText // ex. Master Bath 1 switch is on
-    log.debug evt.description // zigbee or zwave raw data
-    log.debug evt.unit // could F or others
-    log.debug evt.type // null?
-    log.debug evt.user // null?
-    */
+log.debug evt.date // Sun Mar 01 22:43:37 UTC 2015
+log.debug evt.name // motion (capability type)
+log.debug evt.displayName // name of the device in ST "Office aeon multi"
+log.debug evt.value // the value of the capability type, open close inactive, active, etc.
+log.debug evt.descriptionText // ex. Master Bath 1 switch is on
+log.debug evt.description // zigbee or zwave raw data
+log.debug evt.unit // could F or others
+log.debug evt.type // null?
+log.debug evt.user // null?
+*/
     //log.debug evt.jsonValue
-    
+
     //send to webhook api
     logField(evt) { it.toString() }
-    
-    
+
+
     def js = eventJson(evt) //.inspect().toString()
     if (!state.updates) state.updates = []
     def x = state.updates.findAll { js.id == it.id }
     log.debug x
-    
+
     if(x) {
-    	for(i in x) {
+        for(i in x) {
             state.updates.remove(i) 
         }
     }
     state.updates << js
     log.debug state.updates
-    
+
 }
 
 mappings {
@@ -287,7 +287,7 @@ mappings {
     path("/modes/:id") 							{	action: [   GET: "switchMode"        														]}
     // hub
     path("/hubs") 								{   action: [   GET: "listHubs"		       														]}
-    path("/hubs/:id") 							{   action: [   GET: "getHub"        															]}
+    path("/hubs/:id") 							{   action: [   GET: "getHubDetail"        														]}
     // devices  
     path("/devices") 							{   action: [   GET: "listDevices"        														]}
     path("/devices/:id") 						{  	action: [   GET: "listDevices"        														]}
@@ -333,12 +333,12 @@ def listHubs() {
     def id = params.id
     // if there is an id parameter, list only that hub. Otherwise list all hubs in location
     if(id) {
-    def hub = location.hubs?.find{it.id == id}
-          if(hub) {
-              getHub(hub, true)
-          } else {
-              httpError(404, "hub not found")
-          }
+        def hub = location.hubs?.find{it.id == id}
+        if(hub) {
+            getHub(hub, true)
+        } else {
+            httpError(404, "hub not found")
+        }
     } else {
         def result = []
         location.hubs?.each {
@@ -349,7 +349,7 @@ def listHubs() {
     }
 }
 
-private getHub(hub, explodedView = false) {
+def getHub(hub, explodedView = true) {
     def result = [:]
     //put the id and name into the result
     ["id", "name"].each {
@@ -365,6 +365,25 @@ private getHub(hub, explodedView = false) {
     }
     log.debug "Returning HUB: $result"
     result
+}
+
+def getHubDetail() {
+    def id = params.id
+    log.debug "getting hub detail for id: " + id
+    if(id) {
+        def result = [:]
+        //put the id and name into the result
+        ["id", "name"].each {
+            result << [(it) : hub."$it"]
+        }
+        ["firmwareVersionString", "localIP", "localSrvPortTCP", "zigbeeEui", "zigbeeId"].each {
+            result << [(it) : hub."$it"]
+        }
+        result << ["type" : hub.type as String]
+
+        log.debug "Returning HUB: $result"
+        result
+    }
 }
 
 /****************************
@@ -411,7 +430,7 @@ def switchMode() {
     if(mode) {
         log.debug "Setting mode to $mode.name in location: $location.name"
         location.setMode(mode.name)
-        render contentType: "text/html", status: 204, data: "No Content"
+        render contentType: "text/html", status: 201, data: "No Content"
     } else {
         httpError(404, "mode not found")
     }
@@ -467,12 +486,12 @@ def executeRoutine() {
 ****************************/
 /* this just returns key, not very useful
 def listDeviceTypes() {
-    def results = []
-    settings.each {
-        results << it.key
-    }
-    log.debug "Returning TYPES: $results"
-    results
+def results = []
+settings.each {
+results << it.key
+}
+log.debug "Returning TYPES: $results"
+results
 }
 */
 
@@ -528,29 +547,29 @@ def listDeviceEvents() {
 private getAllDevices() {
     //contactSensors + presenceSensors + temperatureSensors + accelerationSensors + waterSensors + lightSensors + humiditySensors
 
-     def dev_list =
-     	([] + switches
-        + dimmers
-        + motions
-        + accelerations
-        + contacts
-        + illuminants
-        + temperatures
-        + humidities
-        + locks 
-        + alarms
-        + batteries
-        + thermostats 
-        + medias 
-        + musics 
-        + speeches 
-        + colors 
-        + valves
-        + waters 
-        + presences 
-        + leaks)?.findAll()?.unique { it.id }
-        
-        return dev_list
+    def dev_list =
+        ([] + switches
+         + dimmers
+         + motions
+         + accelerations
+         + contacts
+         + illuminants
+         + temperatures
+         + humidities
+         + locks 
+         + alarms
+         + batteries
+         + thermostats 
+         + medias 
+         + musics 
+         + speeches 
+         + colors 
+         + valves
+         + waters 
+         + presences 
+         + leaks)?.findAll()?.unique { it.id }
+
+    return dev_list
 }
 
 private item(device, s) {
@@ -578,10 +597,10 @@ def listDeviceCommands() {
 
 def sendDeviceCommand() {
     def id = params.id
-     def device = allDevices?.find{it.id == id}
+    def device = allDevices?.find{it.id == id}
     def command = params.command
     def secondary_command = params.level
-    
+
     device."$command"()
     if(!command) {
         httpError(404, "Device not found")
@@ -598,7 +617,7 @@ def sendDeviceCommandSecondary() {
     def device = allDevices?.find{it.id == id}
     def command = params.command
     def secondary = params.secondary.toInteger()
-    
+
     device."$command"(secondary)
     if(!command) {
         httpError(404, "Device not found")
@@ -611,30 +630,30 @@ def sendDeviceCommandSecondary() {
 }
 
 def updates() {
-	//render out json of all updates since last html loaded
+    //render out json of all updates since last html loaded
     render contentType: "text/json", data:  "updates(" +new JsonBuilder(state.updates).toPrettyString() + ");"
     //render contentType: "text/plain", data:  new JsonBuilder(state.updates).toPrettyString()
 }
 
 def allDevices() {
-	def allAttributes = []
+    def allAttributes = []
     def uniqueDevices = settings.collect { k, devices -> devices.findAll{k != "capability"} }.flatten().unique { it.id }
     log.debug "${uniqueDevices.size()} Unique Devices" // is $uniqueDevices"
-    
+
     uniqueDevices.each {
         it.collect{ i ->
             def deviceData = [:]
-            
+
             deviceData << [name: i?.displayName, label: i?.name, type: i?.typeName, id: i?.id, date: i?.events()[0]?.date, model: i?.modelName, manufacturer: i?.manufacturerName ]
             def attributes = [:]
             i.supportedAttributes.each {
-            	attributes << [(it.toString()) : i.currentState(it.toString())?.value]
+                attributes << [(it.toString()) : i.currentState(it.toString())?.value]
             }
             deviceData << [ "attributes" : attributes ]
             deviceData << [ "commands" : i.supportedCommands.toString() ]
             //log.debug deviceData
             allAttributes << deviceData
-    	}
+        }
     }
     render contentType: "text/json", data: new JsonBuilder(allAttributes).toPrettyString()
     //render contentType: "text/json", data:  "updates(" +new JsonBuilder(allAttributes) + ");"
@@ -642,16 +661,16 @@ def allDevices() {
 
 // Maybe a better listDeviceTypes?
 def listDeviceTypes() {
-	def deviceData = []
+    def deviceData = []
     def uniqueDevices = settings.collect { k, devices -> devices.findAll{k != "capability"} }.flatten().unique { it.id }
     log.debug "${uniqueDevices.size()} Unique Devices" // is $uniqueDevices"
-    
+
     uniqueDevices.each {
         it.collect{ i ->    
-        	if (!deviceData.contains(i?.typeName)) {
-            	deviceData << i?.typeName 
+            if (!deviceData.contains(i?.typeName)) {
+                deviceData << i?.typeName  
             }
-    	} //.flatten().unique { it }
+        } //.flatten().unique { it }
     }
     render contentType: "text/json", data: new JsonBuilder(deviceData).toPrettyString()
 }
@@ -659,7 +678,7 @@ def listDeviceTypes() {
 
 
 private eventJson(evt) {
-	def update = [:]
+    def update = [:]
     update.id = evt.deviceId
     update.name = evt.name
     update.value = evt.value
