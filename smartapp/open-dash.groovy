@@ -27,7 +27,7 @@ definition(
     iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
     iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
 )
-def appVersion() {"0.0.2"}
+def appVersion() {"0.0.3"}
 
 mappings {
     // location
@@ -41,8 +41,7 @@ mappings {
     // devices  
     path("/devices") 							{   action: [   GET: "listDevices"        														]}
     path("/devices/:id") 						{  	action: [   GET: "listDevices"        														]}
-        //events  (TEMP workaround for a potential ST bug if /devices/:id/events somehow sendDeviceCommand fires instead
-    path("/devices/:id/events") 						{   action: [   GET: "listDeviceEvents"        													]}
+    path("/devices/:id/events") 				{   action: [   GET: "listDeviceEvents"        													]}
     path("/devices/:id/commands") 				{	action: [	GET: "listDeviceCommands"        												]}    
     path("/devices/:id/:command")				{   action: [	GET: "sendDeviceCommand"          												]}    
     path("/devices/:id/:command/:secondary")	{   action: [   GET: "sendDeviceCommandSecondary"           									]}   
@@ -217,6 +216,7 @@ def getHubDetail() {
     def id = params.id
     log.debug "getting hub detail for id: " + id
     if(id) {
+    	def hub = location.hubs?.find{it.id == id}
         def result = [:]
         //put the id and name into the result
         ["id", "name"].each {
@@ -407,7 +407,7 @@ def sendDeviceCommandSecondary() {
 
 def updates() {
     //render out json of all updates since last html loaded
-    render contentType: "text/json", data:  "updates(" +new JsonBuilder(state.updates).toPrettyString() + ");"
+    render contentType: "text/json", data: new JsonBuilder(state.updates).toPrettyString()
 }
 
 def allDevices() {
@@ -542,3 +542,4 @@ private eventJson(evt) {
     //log.debug update
     return update
 }
+
