@@ -1,16 +1,17 @@
 # SmartThings Open-Dash API Documentation
 
 Endpoints are accessable via:
-https://graph.api.smartthings.com:443/api/smartapps/installations/[smartapp installed uuid]/[endpoint]/
+`https://graph.api.smartthings.com:443/api/smartapps/installations/[smartapp installed uuid]/[endpoint]/`
 
 You muse have the header:
-authorization: Bearer [token]  
-where the [token] is the completed oauth2 authentication flow to the Smartapp.
+`authorization: Bearer [token] ` 
+where the `[token]` is the completed oauth2 authentication flow to the Smartapp.
 
 NOTE:  Almost all endpoints right now only respond to a GET, this will be fixed later.
 
 ## Endpoints
 **/locations**
+
 Get all locations attached to to authenticated account
 
 returns json
@@ -37,6 +38,7 @@ example:
 ```
 
 **/modes**
+
 Get all modes attached to this account
 
 returns json
@@ -55,11 +57,13 @@ example:
 ]
 ```
 **/modes/:id**
+
 Set the mode via its UUID from /modes
 
 returns html  (no content)
 
 **/hubs**
+
 Get all hubs attached to this account
 
 returns json
@@ -79,6 +83,7 @@ example:
 ```
 
 **/hubs/:id**
+
 Get hub information based on id
 
 returns json
@@ -98,6 +103,7 @@ example:
 ```
 
 **/routines**
+
 Get all routines associated with Account
 
 returns json
@@ -117,6 +123,7 @@ example:
 ```
 
 **/routines/:id**
+
 GET
 Get routine information
 
@@ -135,6 +142,7 @@ error: 404
 ```
 
 **/devices**
+
 Get list of devices
 
 returns json
@@ -154,6 +162,7 @@ example:
 ```
 
 **/devices/:id**
+
 Get device info
 
 returns json
@@ -182,6 +191,7 @@ example:
 ```
 
 **/devices/:id/commands**
+
 Get device commands
 
 returns json
@@ -211,12 +221,15 @@ example:
 ```
 
 **/devices/:id/:command**
+
 Sends command to device id
 
 **/devices/:id/:command/:secondary**
+
 Sends Secondary command to device id
 
 **/devices/:id/events**
+
 Get Device Events
 
 returns json
@@ -252,6 +265,7 @@ example:
 ```
 
 **/updates**
+
 Get last update for each device that has been queued up by the API
 
 returns json
@@ -274,6 +288,7 @@ example:
 ```
 
 **/allDevices**
+
 Get all devices subscribed to, with full details
 
 returns json
@@ -322,6 +337,7 @@ example:
 ```
 
 **/devicetypes**
+
 Get devicetype names for all subscribed devices
 
 returns json
@@ -331,6 +347,7 @@ example:
 [ "SmartSense Multi", "SmartSense Multi Sensor", "Hue Lux Bulb", "SmartPower Outlet", "zZ-Wave Schlage Touchscreen Lock", "Hue Bulb", "Z-Wave Plus Window Shade", "Dropcam", "Z-Wave Remote", "Aeon Minimote", "Z-Wave Lock Reporting", "zps_Control4_Dimmer_ZigbeeHA", "Z-Wave Metering Switch", "zIris Motion/Temp Sensor", "SmartSense Moisture Sensor", "SmartSense Motion Sensor", "zIris Open/Closed Sensor", "Aeon Multisensor", "zCentralite Keypad", "SmartSense Open/Closed Sensor", "zLCF Control4 Controller", "zSmartWeather Station Tile HTML", "Generic Video Camera", "Samsung SmartCam" ]
 ```
 **/weather**
+
 Get current conditions for subscribed location
 
 returns json
