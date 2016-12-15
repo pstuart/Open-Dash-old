@@ -1,23 +1,22 @@
-SmartThings Open-Dash API Documentation
+# SmartThings Open-Dash API Documentation
 
-Endpoints are accessable via https://graph.api.smartthings.com:443/api/smartapps/installations/[smartapp installed uuid]/[endpoint]/
+Endpoints are accessable via:
+https://graph.api.smartthings.com:443/api/smartapps/installations/[smartapp installed uuid]/[endpoint]/
 
 You muse have the header:
 authorization: Bearer [token]  
 where the [token] is the completed oauth2 authentication flow to the Smartapp.
 
-NOTE:  All endpoints right now only respond to a GET, this will be fixed later.
+NOTE:  Almost all endpoints right now only respond to a GET, this will be fixed later.
 
-All parameters that have a ":" should be get vars, example endpoint /devices/:id should be [endpoint_url]/[smartapp_uuid]/devices?id=[uuid]
-
-Endpoints
-/locations
+## Endpoints
+**/locations**
 Get all locations attached to to authenticated account
 
 returns json
 
 example:
-{
+```{
 	"contactBookEnabled": true,
 	"name": "Home",
 	"temperatureScale": "F",
@@ -35,14 +34,15 @@ example:
 		}
 	]
 }
+```
 
-/modes
+**/modes**
 Get all modes attached to this account
 
 returns json
 
 example:
-[{
+```[{
 		"id": "[uuid]",
 		"name": "Home"
 	}, {
@@ -53,19 +53,19 @@ example:
 		"name": "Away"
 	}
 ]
-
-/modes/:id
+```
+**/modes/:id**
 Set the mode via its UUID from /modes
 
-returns html  Need to test
+returns html  (no content)
 
-/hubs
+**/hubs**
 Get all hubs attached to this account
 
 returns json
 
 example:
-[{
+```[{
 		"id": "[uuid]",
 		"name": "Home Hub",
 		"firmwareVersionString": "000.016.00009",
@@ -76,14 +76,15 @@ example:
 		"type": "PHYSICAL"
 	}
 ]
+```
 
-/hubs/:id
+**/hubs/:id**
 Get hub information based on id
 
 returns json
 
 example:
-[{
+```[{
 		"id": "[uuid]",
 		"name": "Home Hub",
 		"firmwareVersionString": "000.016.00009",
@@ -94,14 +95,15 @@ example:
 		"type": "PHYSICAL"
 	}
 ]
+```
 
-/routines
+**/routines**
 Get all routines associated with Account
 
 returns json
 
 example:
-[{
+```[{
 		"id": "[uuid]",
 		"label": "I'm Back!"
 	},  {
@@ -112,55 +114,228 @@ example:
 		"label": "Goodbye!"
 	}
 ]
+```
 
-
-/routines/:id
+**/routines/:id**
 GET
 Get routine information
+
 returns json
 
 example:
-{"id":"[uuid]","label":"I'm Back!"}
+`{"id":"[uuid]","label":"I'm Back!"}`
 
 POST
 Execute routine
-returns html
-success: 204
-error: 404
 
-/devices
+returns html
+
+```success: 204
+error: 404
+```
+
+**/devices**
 Get list of devices
 
-/devices/:id
+returns json
+
+example:
+```
+[{
+		"id": "[uuid]",
+		"name": "SmartSense Multi",
+		"displayName": "Theater SmartSense Multi"
+	}, {
+		"id": "[uuid]",
+		"name": "SmartSense Open/Closed Sensor",
+		"displayName": "Front Door SmartSense Open/Closed Sensor"
+	}
+]
+```
+
+**/devices/:id**
 Get device info
 
-/devices/:id/commands
+returns json
+
+example:
+```
+{
+	"id": "[uuid]",
+	"name": "SmartSense Multi",
+	"displayName": "Theater SmartSense Multi",
+	"attributes": {
+		"temperature": 68,
+		"battery": 1,
+		"contact": "closed",
+		"threeAxis": {
+			"x": -9,
+			"y": 65,
+			"z": -1020
+		},
+		"acceleration": "inactive",
+		"lqi": 100,
+		"rssi": -46,
+		"status": "closed"
+	}
+}
+```
+
+**/devices/:id/commands**
 Get device commands
 
-/devices/:id/:command
+returns json
+
+example:
+```
+[{
+		"command": "on",
+		"params": {}
+	}, {
+		"command": "off",
+		"params": {}
+	}, {
+		"command": "setLevel",
+		"params": {}
+	}, {
+		"command": "refresh",
+		"params": {}
+	}, {
+		"command": "ping",
+		"params": {}
+	}, {
+		"command": "refresh",
+		"params": {}
+	}
+]
+```
+
+**/devices/:id/:command**
 Sends command to device id
 
-/devices/:id/:command/:secondary
+**/devices/:id/:command/:secondary**
 Sends Secondary command to device id
 
-/devices/:id/events
+**/devices/:id/events**
 Get Device Events
 
-/updates
-Get last update for each device
+returns json
 
-/allDevices
+example:
+```
+[{
+		"device_id": "[uuid]",
+		"label": "server room bulb",
+		"name": "switch",
+		"value": "off",
+		"date": "2016-12-14T23:33:04Z",
+		"stateChange": true,
+		"eventSource": "DEVICE"
+	}, {
+		"device_id": "[uuid]",
+		"label": "server room bulb",
+		"name": "switch",
+		"value": "on",
+		"date": "2016-12-14T23:32:25Z",
+		"stateChange": true,
+		"eventSource": "DEVICE"
+	}, {
+		"device_id": "[uuid]",
+		"label": "server room bulb",
+		"name": "switch",
+		"value": "off",
+		"date": "2016-12-14T21:16:14Z",
+		"stateChange": true,
+		"eventSource": "DEVICE"
+	}
+]
+```
+
+**/updates**
+Get last update for each device that has been queued up by the API
+
+returns json
+
+example:
+
+```
+[{
+		"id": "[uuid]",
+		"name": "Deck Door Lock",
+		"value": "locked",
+		"date": "2016-12-04T18:41:15.770Z"
+	}, {
+		"id": "[uuid]",
+		"name": "Hue Lamp 1",
+		"value": "1",
+		"date": "2016-12-12T02:41:09.906Z"
+	}
+]
+```
+
+**/allDevices**
 Get all devices subscribed to, with full details
 
-/devicetypes
+returns json
+
+example:
+```
+[{
+		"name": "Theater SmartSense Multi",
+		"label": "SmartSense Multi",
+		"type": "SmartSense Multi",
+		"id": "[uuid]",
+		"date": "2016-12-15T15:00:48+0000",
+		"model": null,
+		"manufacturer": null,
+		"attributes": {
+			"temperature": "68",
+			"battery": "1",
+			"contact": "closed",
+			"threeAxis": "-9,65,-1020",
+			"acceleration": "inactive",
+			"lqi": "100",
+			"rssi": "-46",
+			"status": "closed"
+		},
+		"commands": "[]"
+	}, {
+		"name": "Front Door SmartSense Open/Closed Sensor",
+		"label": "SmartSense Open/Closed Sensor",
+		"type": "SmartSense Multi Sensor",
+		"id": "[uuid]",
+		"date": "2016-12-15T15:08:51+0000",
+		"model": "3300",
+		"manufacturer": "CentraLite",
+		"attributes": {
+			"temperature": "58",
+			"battery": "67",
+			"contact": "closed",
+			"threeAxis": null,
+			"acceleration": null,
+			"checkInterval": "720",
+			"status": "closed"
+		},
+		"commands": "[configure, refresh, ping, enrollResponse]"
+	}, 
+]
+```
+
+**/devicetypes**
 Get devicetype names for all subscribed devices
 
-/weather
+returns json
+
+example:
+```
+[ "SmartSense Multi", "SmartSense Multi Sensor", "Hue Lux Bulb", "SmartPower Outlet", "zZ-Wave Schlage Touchscreen Lock", "Hue Bulb", "Z-Wave Plus Window Shade", "Dropcam", "Z-Wave Remote", "Aeon Minimote", "Z-Wave Lock Reporting", "zps_Control4_Dimmer_ZigbeeHA", "Z-Wave Metering Switch", "zIris Motion/Temp Sensor", "SmartSense Moisture Sensor", "SmartSense Motion Sensor", "zIris Open/Closed Sensor", "Aeon Multisensor", "zCentralite Keypad", "SmartSense Open/Closed Sensor", "zLCF Control4 Controller", "zSmartWeather Station Tile HTML", "Generic Video Camera", "Samsung SmartCam" ]
+```
+**/weather**
 Get current conditions for subscribed location
 
 returns json
 example:
-{
+```{
 	"wind_gust_mph": 0,
 	"precip_1hr_metric": " 0",
 	"precip_today_metric": "0",
@@ -251,3 +426,4 @@ example:
 	"wind_string": "Calm",
 	"precip_today_in": "0.00"
 }
+```
