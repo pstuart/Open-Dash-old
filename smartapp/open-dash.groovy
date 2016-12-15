@@ -27,72 +27,99 @@ definition(
     iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
     iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
 )
-def appVersion() {"0.0.1"}
+def appVersion() {"0.0.2"}
+
+mappings {
+    // location
+    path("/locations") 							{	action: [	GET: "listLocation"        														]}
+    // modes    
+    path("/modes") 								{   action: [   GET: "listModes"        														]}
+    path("/modes/:id") 							{	action: [   GET: "switchMode"        														]}
+    // hub
+    path("/hubs") 								{   action: [   GET: "listHubs"		       														]}
+    path("/hubs/:id") 							{   action: [   GET: "getHubDetail"        														]}
+    // devices  
+    path("/devices") 							{   action: [   GET: "listDevices"        														]}
+    path("/devices/:id") 						{  	action: [   GET: "listDevices"        														]}
+        //events  (TEMP workaround for a potential ST bug if /devices/:id/events somehow sendDeviceCommand fires instead
+    path("/devices/:id/events") 						{   action: [   GET: "listDeviceEvents"        													]}
+    path("/devices/:id/commands") 				{	action: [	GET: "listDeviceCommands"        												]}    
+    path("/devices/:id/:command")				{   action: [	GET: "sendDeviceCommand"          												]}    
+    path("/devices/:id/:command/:secondary")	{   action: [   GET: "sendDeviceCommandSecondary"           									]}   
+
+    // Routines
+    path("/routines") 							{   action: [   GET: "listRoutines"        														]}
+    path("/routines/:id") 						{   action: [   GET: "listRoutines",            	POST: "executeRoutine"        				]}
+    path("/updates") 							{   action: [   GET: "updates"        															]}
+    path("/allDevices") 						{   action: [   GET: "allDevices"        														]}
+    path("/devicetypes")						{	action: [ 	GET: "listDeviceTypes" 															]}
+    path("/version")							{	action: [ 	GET: "getVersion" 																]}
+}
 
 private def getCapabilities() {
     [   //Capability Prefrence Reference			Display Name					Subscribed Name						Subscribe Attribute        
-        ["capability.accelerationSensor",			"Accelaration Sensor",			"accelerations",					"acceleration"						],
-        ["capability.actuator",						"Actuator",						"actuators",						""						],
+        ["capability.accelerationSensor",			"Accelaration Sensor",			"accelerations",					"acceleration"				],
+        ["capability.actuator",						"Actuator",						"actuators",						""							],
         ["capability.alarm",						"Alarm",						"alarms",							"alarm"						],
-        ["capability.audioNotification",			"Audio Notification",			"audioNotifications",				""						],
-        ["capability.battery",						"Battery",						"batteries",						"battery"						],
-        ["capability.beacon",						"Beacon",						"beacons",							"presence"						],
-        ["capability.button",						"Button",						"buttons",							"button"						],
-        ["capability.carbonDioxideMeasurement",		"Carbon Dioxide Measurement",	"carbonDioxideMeasurements",		"carbonDioxide"						],
-        ["capability.carbonMonoxideDetector",		"Carbon Monoxide Detector",		"carbonMonoxideDetectors",			"carbonMonoxide"						],
-        ["capability.colorControl",					"Color Control",				"colorControls",					""						],
-        ["capability.colorTemperature",				"Color Temperature",			"colorTemperatures",				"colorTemperature"						],
-        ["capability.consumable",					"Consumable",					"consumables",						"consumable"						],
-        ["capability.contactSensor",	  			"Contact",						"contactSensors",					"contact"						],
+        ["capability.audioNotification",			"Audio Notification",			"audioNotifications",				""							],
+        ["capability.battery",						"Battery",						"batteries",						"battery"					],
+        ["capability.beacon",						"Beacon",						"beacons",							"presence"					],
+        ["capability.button",						"Button",						"buttons",							"button"					],
+        ["capability.carbonDioxideMeasurement",		"Carbon Dioxide Measurement",	"carbonDioxideMeasurements",		"carbonDioxide"				],
+        ["capability.carbonMonoxideDetector",		"Carbon Monoxide Detector",		"carbonMonoxideDetectors",			"carbonMonoxide"			],
+        ["capability.colorControl",					"Color Control",				"colorControls",					""							],
+        ["capability.colorTemperature",				"Color Temperature",			"colorTemperatures",				"colorTemperature"			],
+        ["capability.consumable",					"Consumable",					"consumables",						"consumable"				],
+        ["capability.contactSensor",	  			"Contact",						"contactSensors",					"contact"					],
         ["capability.doorControl",	  				"Door Control",					"doorControls",						"door"						],
-        ["capability.energyMeter",					"Energy Meter",					"energyMeters",						"energy"						],
+        ["capability.energyMeter",					"Energy Meter",					"energyMeters",						"energy"					],
         ["capability.estimatedTimeOfArrival",		"ETA",							"estimatedTimeOfArrivals",			"eta"						],
         ["capability.garageDoorControl",			"Garage Door Control",			"garageDoorControls",				"door"						],
-        ["capability.illuminanceMeasurement",		"Illuminance",					"illuminanceMeasurements",			"illuminance"						],
+        ["capability.illuminanceMeasurement",		"Illuminance",					"illuminanceMeasurements",			"illuminance"				],
         ["capability.imageCapture",					"Image Capture",				"imageCaptures",					"image"						],
-        ["capability.indicator",					"Indicator",					"indicators",						"indicatorStatus"						],
+        ["capability.indicator",					"Indicator",					"indicators",						"indicatorStatus"			],
         ["capability.lock" ,						"Lock",							"locks",							"lock"						],
-        ["capability.mediaController" ,				"Media Controller",				"mediaControllers",					""						],
-        ["capability.momentary" ,					"Momentary",					"momentaries",						""						],
-        ["capability.motionSensor",					"Motion",						"motionSensors",					"motion"						],
-        ["capability.musicPlayer",					"Music Player",					"musicPlayer",						""						],
+        ["capability.mediaController" ,				"Media Controller",				"mediaControllers",					""							],
+        ["capability.momentary" ,					"Momentary",					"momentaries",						""							],
+        ["capability.motionSensor",					"Motion",						"motionSensors",					"motion"					],
+        ["capability.musicPlayer",					"Music Player",					"musicPlayer",						""							],
         ["capability.pHMeasurement",				"pH Measurement",				"pHMeasurements",					"pH"						],
-        ["capability.motionSensor",					"Motion",						"motionSensors",					""						],
+        ["capability.motionSensor",					"Motion",						"motionSensors",					""							],
         ["capability.powerMeter",					"Power Meter",					"powerMeters",						"power"						],
-        ["capability.power",						"Power",						"powers",							"powerSource"						],
-        ["capability.presenceSensor",				"Presence",						"presenceSensors",					"presence"						],
-        ["capability.relativeHumidityMeasurement",	"Humidity",						"relativeHumidityMeasurements",		"humidity"						],
-        ["capability.relaySwitch",					"Relay Switch",					"relaySwitches",					"switch"						],
-        ["capability.sensor",						"Sensor",						"sensors",							""						],
+        ["capability.power",						"Power",						"powers",							"powerSource"				],
+        ["capability.presenceSensor",				"Presence",						"presenceSensors",					"presence"					],
+        ["capability.relativeHumidityMeasurement",	"Humidity",						"relativeHumidityMeasurements",		"humidity"					],
+        ["capability.relaySwitch",					"Relay Switch",					"relaySwitches",					"switch"					],
+        ["capability.sensor",						"Sensor",						"sensors",							""							],
         ["capability.shockSensor",					"Shock Sensor",					"shockSensors",						"shock"						],
-        ["capability.signalStrength",				"Signal Strength",				"signalStrengths",					""						],
-        ["capability.sleepSensor",					"Sleep Sensor",					"sleepSensors",						"sleeping"						],
+        ["capability.signalStrength",				"Signal Strength",				"signalStrengths",					""							],
+        ["capability.sleepSensor",					"Sleep Sensor",					"sleepSensors",						"sleeping"					],
         ["capability.smokeDetector",				"Smoke Detector",				"smokeDetectors",					"smoke"						],
         ["capability.soundSensor",					"Sound Sensor",					"soundSensors",						"sound"						],
-        ["capability.speechRecognition",			"Speech Recognition",			"speechRecognitions",				"phraseSpoken"						],
+        ["capability.speechRecognition",			"Speech Recognition",			"speechRecognitions",				"phraseSpoken"				],
         ["capability.stepSensor",					"Step Sensor",					"stepSensors",						"steps"						],
-        ["capability.switch",						"Switchs", 						"switches",							"switch"						],
+        ["capability.switch",						"Switchs", 						"switches",							"switch"					],
         ["capability.switchLevel",					"Level",						"switchLevels",						"level"						],
-        ["capability.soundPressureLevel",			"Sound Pressure Level",			"soundPressureLevels",				"soundPressureLevel"						],
-        ["capability.tamperAlert",					"Tamper Alert",					"tamperAlert",						"tamper"						],
-        ["capability.temperatureMeasurement" , 		"Temperature", 					"temperatureMeasurements",			"temperature"						],
-        ["capability.thermostat" , 					"Thermostat", 					"thermostats",						""						],
-        ["capability.thermostatCoolingSetpoint" , 	"Thermostat Cooling Setpoint", 	"thermostatCoolingSetpoints",		"coolingSetpoint"						],
-        ["capability.thermostatFanMode" , 			"Thermostat Fan Mode", 			"thermostatFanModes",				"thermostatFanMode"						],
-        ["capability.thermostatHeatingSetpoint" , 	"Thermostat Heating Setpoint", 	"thermostatHeatingSetpoints",		"heatingSetpoint"						],
-        ["capability.thermostatMode" , 				"Thermostat Mode", 				"thermostatModes",					"thermostatMode"						],
-        ["capability.thermostatOperatingState",		"Thermostat Operating State",	"thermostatOperatingStates",		"thermostatOperatingState"						],
-        ["capability.thermostatSetpoint",			"Thermostat Setpoint",			"thermostatSetpoints",				"thermostatSetpoint"						],
-        ["capability.threeAxis",					"Three Axis",					"threeAxises",						"threeAxis"						],
-        ["capability.tone",							"Tone",							"tones",							""						],
+        ["capability.soundPressureLevel",			"Sound Pressure Level",			"soundPressureLevels",				"soundPressureLevel"		],
+        ["capability.tamperAlert",					"Tamper Alert",					"tamperAlert",						"tamper"					],
+        ["capability.temperatureMeasurement" , 		"Temperature", 					"temperatureMeasurements",			"temperature"				],
+        ["capability.thermostat" , 					"Thermostat", 					"thermostats",						""							],
+        ["capability.thermostatCoolingSetpoint" , 	"Thermostat Cooling Setpoint", 	"thermostatCoolingSetpoints",		"coolingSetpoint"			],
+        ["capability.thermostatFanMode" , 			"Thermostat Fan Mode", 			"thermostatFanModes",				"thermostatFanMode"			],
+        ["capability.thermostatHeatingSetpoint" , 	"Thermostat Heating Setpoint", 	"thermostatHeatingSetpoints",		"heatingSetpoint"			],
+        ["capability.thermostatMode" , 				"Thermostat Mode", 				"thermostatModes",					"thermostatMode"			],
+        ["capability.thermostatOperatingState",		"Thermostat Operating State",	"thermostatOperatingStates",		"thermostatOperatingState"	],
+        ["capability.thermostatSetpoint",			"Thermostat Setpoint",			"thermostatSetpoints",				"thermostatSetpoint"		],
+        ["capability.threeAxis",					"Three Axis",					"threeAxises",						"threeAxis"					],
+        ["capability.tone",							"Tone",							"tones",							""							],
         ["capability.touchSensor",					"Touch Sensor",					"touchSensors",						"touch"						],
-        ["capability.trackingMusicPlayer",			"Tracking Music Player",		"trackingMusicPlayers",				""						],
-        ["capability.ultravioletIndex",				"Ultraviolet Index",			"ultravioletIndexes",				"ultravioletIndex"						],
-        ["capability.soundPressureLevel",			"Sound Pressure Level",			"soundPressureLevels",				""						],
-        ["capability.valve",						"Valve",						"valves",							"contact"						],
-        ["capability.voltageMeasurement",			"Voltage Measurement",			"voltageMeasurements",				"voltage"						],
+        ["capability.trackingMusicPlayer",			"Tracking Music Player",		"trackingMusicPlayers",				""							],
+        ["capability.ultravioletIndex",				"Ultraviolet Index",			"ultravioletIndexes",				"ultravioletIndex"			],
+        ["capability.soundPressureLevel",			"Sound Pressure Level",			"soundPressureLevels",				""							],
+        ["capability.valve",						"Valve",						"valves",							"contact"					],
+        ["capability.voltageMeasurement",			"Voltage Measurement",			"voltageMeasurements",				"voltage"					],
         ["capability.waterSensor",					"Water Sensor",					"waterSensors",						"water"						],
-        ["capability.windowShade",					"Window Shade",					"windowShades",						"windowShade"						],
+        ["capability.windowShade",					"Window Shade",					"windowShades",						"windowShade"				],
     ]  
 }
 
@@ -114,193 +141,12 @@ def updated() {
 }
 
 def initialize() {
-    //only subscribe to those capabilities that can send events we want to get updates from.
     for (cap in capabilities) {
         if(cap[3] != "") {
             log.debug cap
             subscribe(settings[cap[2]], cap[3], handleEvent)
         }
     }
-    /*
-subscribe(switchs, "switch", handleSwitchEvent)
-subscribe(dimmer, "level", handleSwitchLevelEvent)
-subscribe(motion, "motion", handleMotionEvent)
-subscribe(acceleration, "acceleration", handleAccelerationEvent)
-subscribe(contact, "contact", handleContactEvent)
-subscribe(illuminant, "illuminance", handleIlluminanceEvent)
-subscribe(temperature, "temperature", handleTemperatureEvent)
-subscribe(humidity, "humidity", handleHumidityEvent)
-subscribe(lock, "locks", handleDoorLockEvent)
-subscribe(battery, "battery", handleBatteryEvent)
-subscribe(power, "power", handlePowerEvent)
-subscribe(energy, "energy", handleEnergyEvent)
-subscribe(presence, "presence", handlePresenceEvent)
-subscribe(dioxide, "dioxide", handleDioxideEvent)
-subscribe(signal, "signal", handleSignalEvent)
-subscribe(leak, "leak", handleLeakEvent)
-subscribe(sound, "sound", handleSoundEvent)
-subscribe(color, "color", handleColorEvent)
-*/
-}
-
-/*
-def handleIlluminanceEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleHumidityEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleTemperatureEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleThermCoolPoint(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleContactEvent(evt) {
-logField(evt) { it == "open" ? "1" : "0" }
-handleEvent(evt)
-}
-
-def handleAccelerationEvent(evt) {
-logField(evt) { it == "active" ? "1" : "0" }
-handleEvent(evt)
-}
-
-def handleMotionEvent(evt) {
-logField(evt) { it == "active" ? "1" : "0" }
-handleEvent(evt)
-}
-
-def handleSwitchEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleSwitchLevelEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleDoorLockEvent(evt) {
-logField(evt) {it == "locked" ? "locked" : "unlocked" }
-handleEvent(evt)
-}
-
-def handleBatteryEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handlePowerEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleEnergyEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handlePresenceEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleDioxideEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleLeakEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleSignalEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleSoundEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleColorEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-
-def handleColorTemperatureEvent(evt) {
-logField(evt) { it.toString() }
-handleEvent(evt)
-}
-*/
-
-def handleEvent(evt) {
-    //Find what we know about evt
-    /*log.debug evt
-log.debug evt.date // Sun Mar 01 22:43:37 UTC 2015
-log.debug evt.name // motion (capability type)
-log.debug evt.displayName // name of the device in ST "Office aeon multi"
-log.debug evt.value // the value of the capability type, open close inactive, active, etc.
-log.debug evt.descriptionText // ex. Master Bath 1 switch is on
-log.debug evt.description // zigbee or zwave raw data
-log.debug evt.unit // could F or others
-log.debug evt.type // null?
-log.debug evt.user // null?
-*/
-    //log.debug evt.jsonValue
-
-    //send to webhook api
-    logField(evt) { it.toString() }
-
-
-    def js = eventJson(evt) //.inspect().toString()
-    if (!state.updates) state.updates = []
-    def x = state.updates.findAll { js.id == it.id }
-    log.debug x
-
-    if(x) {
-        for(i in x) {
-            state.updates.remove(i) 
-        }
-    }
-    state.updates << js
-    log.debug state.updates
-
-}
-
-mappings {
-    // location
-    path("/locations") 							{	action: [	GET: "listLocation"        														]}
-    // modes    
-    path("/modes") 								{   action: [   GET: "listModes"        														]}
-    path("/modes/:id") 							{	action: [   GET: "switchMode"        														]}
-    // hub
-    path("/hubs") 								{   action: [   GET: "listHubs"		       														]}
-    path("/hubs/:id") 							{   action: [   GET: "getHubDetail"        														]}
-    // devices  
-    path("/devices") 							{   action: [   GET: "listDevices"        														]}
-    path("/devices/:id") 						{  	action: [   GET: "listDevices"        														]}
-    path("/devices/:id/commands") 				{	action: [	GET: "listDeviceCommands"        												]}    
-    path("/devices/:id/:command")				{   action: [	GET: "sendDeviceCommand"          												]}    
-    path("/devices/:id/:command/:secondary")	{   action: [   GET: "sendDeviceCommandSecondary"           									]}   
-    path("/devices/:id/events") 				{   action: [   GET: "listDeviceEvents"        													]}
-    // Routines
-    path("/routines") 							{   action: [   GET: "listRoutines"        														]}
-    path("/routines/:id") 						{   action: [   GET: "listRoutines",            	POST: "executeRoutine"        				]}
-    path("/updates") 							{   action: [   GET: "updates"        															]}
-    path("/allDevices") 						{   action: [   GET: "allDevices"        														]}
-    path("/devicetypes")						{	action: [ 	GET: "listDeviceTypes" 															]}
 }
 
 /****************************
@@ -349,7 +195,7 @@ def listHubs() {
     }
 }
 
-def getHub(hub, explodedView = true) {
+def getHub(hub, explodedView = false) {
     def result = [:]
     //put the id and name into the result
     ["id", "name"].each {
@@ -387,7 +233,7 @@ def getHubDetail() {
 }
 
 /****************************
-* Modes Methods
+* Modes API Commands
 ****************************/
 def listModes() {
     def id = params.id
@@ -409,21 +255,6 @@ def listModes() {
     }
 }
 
-private getMode(mode, explodedView = false) {
-    def result = [:]
-    ["id", "name"].each {
-        result << [(it) : mode."$it"]
-    }
-
-    if(explodedView) {
-        ["locationId"].each {
-            result << [(it) : mode."$it"]
-        }
-    }
-    log.debug "Returning MODE: $result"
-    result
-}
-
 def switchMode() {
     def id = params.id
     def mode = location.modes?.find{it.id == id}
@@ -437,7 +268,7 @@ def switchMode() {
 }
 
 /****************************
-* Routine Methods
+* Routine API Commands
 ****************************/
 def listRoutines() {
     def id = params.id
@@ -460,15 +291,6 @@ def listRoutines() {
     }
 }
 
-private getRoutine(routine) {
-    def result = [:]
-    ["id", "label"].each {
-        result << [(it) : routine."$it"]
-    }
-    log.debug "Returning ROUTINE: $result"
-    result
-}
-
 def executeRoutine() {
     def id = params.id
     def routine = location.helloHome?.getPhrases().find{it.id == id}
@@ -482,28 +304,17 @@ def executeRoutine() {
 }
 
 /****************************
-* Device Methods
+* Device API Commands
 ****************************/
-/* this just returns key, not very useful
-def listDeviceTypes() {
-def results = []
-settings.each {
-results << it.key
-}
-log.debug "Returning TYPES: $results"
-results
-}
-*/
-
 def listDevices() {
     def id = params.id
     // if there is an id parameter, list only that device. Otherwise list all devices in location
     if(id) {
-        def device = allDevices?.find{it.id == id}
+        def device = allSubscribed?.find{it.id == id}
         deviceItem(device, true)
     } else {
         def result = []
-        result << allDevices.collect{deviceItem(it, false)}
+        result << allSubscribed.collect{deviceItem(it, false)}
         log.debug "Returning DEVICES: $result"
         result[0]
     }
@@ -531,7 +342,8 @@ private deviceItem(device, explodedView) {
 def listDeviceEvents() {
     def numEvents = 20
     def id = params.id
-    def device = allDevices?.find{it.id == id}
+	log.debug "In listDeviceEvents for device " + id
+    def device = allSubscribed?.find{it.id == id}
 
     if (!device) {
         httpError(404, "Device not found")
@@ -544,45 +356,9 @@ def listDeviceEvents() {
     }
 }
 
-private getAllDevices() {
-    //contactSensors + presenceSensors + temperatureSensors + accelerationSensors + waterSensors + lightSensors + humiditySensors
-
-    def dev_list =
-        ([] + switches
-         + dimmers
-         + motions
-         + accelerations
-         + contacts
-         + illuminants
-         + temperatures
-         + humidities
-         + locks 
-         + alarms
-         + batteries
-         + thermostats 
-         + medias 
-         + musics 
-         + speeches 
-         + colors 
-         + valves
-         + waters 
-         + presences 
-         + leaks)?.findAll()?.unique { it.id }
-
-    return dev_list
-}
-
-private item(device, s) {
-    device && s ? [device_id: device.id, 
-                   label: device.displayName, 
-                   name: s.name, value: s.value, 
-                   date: s.date, stateChange: s.stateChange, 
-                   eventSource: s.eventSource] : null
-}
-
 def listDeviceCommands() {
     def id = params.id
-    def device = allDevices?.find{it.id == id}
+    def device = allSubscribed?.find{it.id == id}
     def result = []
     if(!device) {
         httpError(404, "Device not found")
@@ -597,7 +373,7 @@ def listDeviceCommands() {
 
 def sendDeviceCommand() {
     def id = params.id
-    def device = allDevices?.find{it.id == id}
+    def device = allSubscribed?.find{it.id == id}
     def command = params.command
     def secondary_command = params.level
 
@@ -614,7 +390,7 @@ def sendDeviceCommand() {
 
 def sendDeviceCommandSecondary() {
     def id = params.id
-    def device = allDevices?.find{it.id == id}
+    def device = allSubscribed?.find{it.id == id}
     def command = params.command
     def secondary = params.secondary.toInteger()
 
@@ -632,15 +408,13 @@ def sendDeviceCommandSecondary() {
 def updates() {
     //render out json of all updates since last html loaded
     render contentType: "text/json", data:  "updates(" +new JsonBuilder(state.updates).toPrettyString() + ");"
-    //render contentType: "text/plain", data:  new JsonBuilder(state.updates).toPrettyString()
 }
 
 def allDevices() {
     def allAttributes = []
-    def uniqueDevices = settings.collect { k, devices -> devices.findAll{k != "capability"} }.flatten().unique { it.id }
-    log.debug "${uniqueDevices.size()} Unique Devices" // is $uniqueDevices"
+    log.debug "${allSubscribed.size()} Unique Devices"
 
-    uniqueDevices.each {
+    allSubscribed.each {
         it.collect{ i ->
             def deviceData = [:]
 
@@ -651,21 +425,18 @@ def allDevices() {
             }
             deviceData << [ "attributes" : attributes ]
             deviceData << [ "commands" : i.supportedCommands.toString() ]
-            //log.debug deviceData
             allAttributes << deviceData
         }
     }
     render contentType: "text/json", data: new JsonBuilder(allAttributes).toPrettyString()
-    //render contentType: "text/json", data:  "updates(" +new JsonBuilder(allAttributes) + ");"
 }
 
-// Maybe a better listDeviceTypes?
 def listDeviceTypes() {
     def deviceData = []
-    def uniqueDevices = settings.collect { k, devices -> devices.findAll{k != "capability"} }.flatten().unique { it.id }
-    log.debug "${uniqueDevices.size()} Unique Devices" // is $uniqueDevices"
+    //def uniqueDevices = settings.collect { k, devices -> devices.findAll{k != "capability"} }.flatten().unique { it.id }
+    log.debug "${allSubscribed.size()} Unique Devices" // is $uniqueDevices"
 
-    uniqueDevices.each {
+    allSubscribed.each {
         it.collect{ i ->    
             if (!deviceData.contains(i?.typeName)) {
                 deviceData << i?.typeName  
@@ -675,7 +446,91 @@ def listDeviceTypes() {
     render contentType: "text/json", data: new JsonBuilder(deviceData).toPrettyString()
 }
 
+/* General API Functions */
+def getVersion() {
+	render contentType: "text/json", data: appVersion();
+}
 
+/* WebHook API Call on Subscribed Change */
+private logField(evt, Closure c) {
+    //log.debug "The souce of this event is ${evt.source} and it was ${evt.id}"
+
+    //httpPostJson(uri: "#####SEND EVENTS TO YOUR ENDPOINT######",   body:[source: "smart_things", device: evt.deviceId, eventType: evt.name, value: evt.value, event_date: evt.isoDate, units: evt.unit, event_source: evt.source, state_changed: evt.isStateChange()]) {
+    //    log.debug evt.name+" Event data successfully posted"
+    //}
+}
+
+/* Common Functions */
+def handleEvent(evt) {
+    //Find what we know about evt
+    /*
+    log.debug evt
+    log.debug evt.date // Sun Mar 01 22:43:37 UTC 2015
+    log.debug evt.name // motion (capability type)
+    log.debug evt.displayName // name of the device in ST "Office aeon multi"
+    log.debug evt.value // the value of the capability type, open close inactive, active, etc.
+    log.debug evt.descriptionText // ex. Master Bath 1 switch is on
+    log.debug evt.description // zigbee or zwave raw data
+    log.debug evt.unit // could F or others
+    log.debug evt.type // null?
+    log.debug evt.user // null?
+    */
+    //log.debug evt.jsonValue
+
+    //send to webhook api
+    logField(evt) { it.toString() }
+
+    def js = eventJson(evt) //.inspect().toString()
+    if (!state.updates) state.updates = []
+    def x = state.updates.findAll { js.id == it.id }
+
+    if(x) {
+        for(i in x) {
+            state.updates.remove(i) 
+        }
+    }
+    state.updates << js
+}
+
+private getAllSubscribed() {
+    def dev_list = []
+    capabilities.each { 
+        dev_list << settings[it[2]] 
+    }
+    return dev_list?.findAll()?.flatten().unique { it.id }
+}
+
+private item(device, s) {
+    device && s ? [device_id: device.id, 
+                   label: device.displayName, 
+                   name: s.name, value: s.value, 
+                   date: s.date, stateChange: s.stateChange, 
+                   eventSource: s.eventSource] : null
+}
+
+private getRoutine(routine) {
+    def result = [:]
+    ["id", "label"].each {
+        result << [(it) : routine."$it"]
+    }
+    log.debug "Returning ROUTINE: $result"
+    result
+}
+
+private getMode(mode, explodedView = false) {
+    def result = [:]
+    ["id", "name"].each {
+        result << [(it) : mode."$it"]
+    }
+
+    if(explodedView) {
+        ["locationId"].each {
+            result << [(it) : mode."$it"]
+        }
+    }
+    log.debug "Returning MODE: $result"
+    result
+}
 
 private eventJson(evt) {
     def update = [:]
@@ -686,13 +541,4 @@ private eventJson(evt) {
     update.date = evt.isoDate
     //log.debug update
     return update
-}
-
-// Callback to some url 
-private logField(evt, Closure c) {
-    //log.debug "The souce of this event is ${evt.source} and it was ${evt.id}"
-
-    //httpPostJson(uri: "#####SEND EVENTS TO YOUR ENDPOINT######",   body:[source: "smart_things", device: evt.deviceId, eventType: evt.name, value: evt.value, event_date: evt.isoDate, units: evt.unit, event_source: evt.source, state_changed: evt.isStateChange()]) {
-    //    log.debug evt.name+" Event data successfully posted"
-    //}
 }
