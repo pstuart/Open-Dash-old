@@ -13,7 +13,7 @@
 *  Open-Dash API
 *
 *  Author: Open-Dash
-*  Originally from https://github.com/jodyalbritton/apismartapp/blob/master/endpoint.groovy
+*  based on https://github.com/jodyalbritton/apismartapp/blob/master/endpoint.groovy
 */
 
 import groovy.json.JsonBuilder
@@ -27,7 +27,7 @@ definition(
     iconUrl: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience.png",
     iconX2Url: "https://s3.amazonaws.com/smartapp-icons/Convenience/Cat-Convenience@2x.png",
 )
-def appVersion() {"0.0.3"}
+def appVersion() {"0.0.4"}
 
 mappings {
     // location
@@ -53,6 +53,7 @@ mappings {
     path("/allDevices") 						{   action: [   GET: "allDevices"        														]}
     path("/devicetypes")						{	action: [ 	GET: "listDeviceTypes" 															]}
     path("/version")							{	action: [ 	GET: "getVersion" 																]}
+    path("/weather")							{	action: [ 	GET: "getWeather" 																]}
 }
 
 private def getCapabilities() {
@@ -216,7 +217,7 @@ def getHubDetail() {
     def id = params.id
     log.debug "getting hub detail for id: " + id
     if(id) {
-    	def hub = location.hubs?.find{it.id == id}
+        def hub = location.hubs?.find{it.id == id}
         def result = [:]
         //put the id and name into the result
         ["id", "name"].each {
@@ -342,7 +343,7 @@ private deviceItem(device, explodedView) {
 def listDeviceEvents() {
     def numEvents = 20
     def id = params.id
-	log.debug "In listDeviceEvents for device " + id
+    log.debug "In listDeviceEvents for device " + id
     def device = allSubscribed?.find{it.id == id}
 
     if (!device) {
@@ -448,7 +449,7 @@ def listDeviceTypes() {
 
 /* General API Functions */
 def getVersion() {
-	render contentType: "text/json", data: appVersion();
+    render contentType: "text/json", data: appVersion();
 }
 
 /* WebHook API Call on Subscribed Change */
@@ -460,21 +461,95 @@ private logField(evt, Closure c) {
     //}
 }
 
+def getWeather() {
+    // Current conditions
+    def obs = get("conditions")?.current_observation
+
+    // Sunrise / sunset
+    def a = get("astronomy")?.moon_phase
+    def today = localDate("GMT${obs.local_tz_offset}")
+    def ltf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm")
+    ltf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
+    def utf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    utf.setTimeZone(TimeZone.getTimeZone("GMT"))
+
+    def sunriseDate = ltf.parse("${today} ${a.sunrise.hour}:${a.sunrise.minute}")
+    def sunsetDate = ltf.parse("${today} ${a.sunset.hour}:${a.sunset.minute}")
+
+    def tf = new java.text.SimpleDateFormat("h:mm a")
+    tf.setTimeZone(TimeZone.getTimeZone("GMT${obs.local_tz_offset}"))
+    def localSunrise = "${tf.format(sunriseDate)}"
+    def localSunset = "${tf.format(sunsetDate)}"
+    obs << [ sunrise : localSunrise ]
+    obs << [ sunset : localSunset ]
+
+    // Forecast
+    def f = get("forecast")
+    def f1= f?.forecast?.simpleforecast?.forecastday
+    if (f1) {
+        def icon = f1[0].icon_url.split("/")[-1].split("\\.")[0]
+        def value = f1[0].pop as String // as String because of bug in determining state change of 0 numbers
+        obs << [ percentPrecip : value ]
+        obs << [ forecastIcon : icon ]
+    }
+    else {
+        log.warn "Forecast not found"
+    }
+    obs << [ illuminance : estimateLux(sunriseDate, sunsetDate, weatherIcon) ]
+    // Alerts
+    def alerts = get("alerts")?.alerts
+    def newKeys = alerts?.collect{it.type + it.date_epoch} ?: []
+    log.debug "WUSTATION: newKeys: $newKeys"
+    def oldKeys = state.alertKeys?.jsonValue
+    log.debug "WUSTATION: oldKeys: $oldKeys"
+
+    def noneString = "no current weather alerts"
+    if (!newKeys && oldKeys == null) {
+        obs << [alertKeys : newKeys.encodeAsJSON()]
+        obs << [alertString : noneString]
+    }
+    else if (newKeys != oldKeys) {
+        if (oldKeys == null) {
+            oldKeys = []
+        }
+        //send(name: "alertKeys", value: newKeys.encodeAsJSON(), displayed: false)
+        obs << [aleryKeys : newKeys.encodeAsJSON() ]
+        def newAlerts = false
+        alerts.each {alert ->
+            if (!oldKeys.contains(alert.type + alert.date_epoch)) {
+                def msg = "${alert.description} from ${alert.date} until ${alert.expires}"
+                obs << [ alertString : alert.description ]
+                newAlerts = true
+            }
+        }
+
+        if (!newAlerts && device.currentValue("alert") != noneString) {
+            obs << [ alertString : noneString ]
+        }
+    }
+
+    log.debug obs
+    log.debug obs.alertString
+    if (obs) {
+       return obs  
+    }
+}
+
 /* Common Functions */
 def handleEvent(evt) {
     //Find what we know about evt
     /*
-    log.debug evt
-    log.debug evt.date // Sun Mar 01 22:43:37 UTC 2015
-    log.debug evt.name // motion (capability type)
-    log.debug evt.displayName // name of the device in ST "Office aeon multi"
-    log.debug evt.value // the value of the capability type, open close inactive, active, etc.
-    log.debug evt.descriptionText // ex. Master Bath 1 switch is on
-    log.debug evt.description // zigbee or zwave raw data
-    log.debug evt.unit // could F or others
-    log.debug evt.type // null?
-    log.debug evt.user // null?
-    */
+log.debug evt
+log.debug evt.date // Sun Mar 01 22:43:37 UTC 2015
+log.debug evt.name // motion (capability type)
+log.debug evt.displayName // name of the device in ST "Office aeon multi"
+log.debug evt.value // the value of the capability type, open close inactive, active, etc.
+log.debug evt.descriptionText // ex. Master Bath 1 switch is on
+log.debug evt.description // zigbee or zwave raw data
+log.debug evt.unit // could F or others
+log.debug evt.type // null?
+log.debug evt.user // null?
+*/
     //log.debug evt.jsonValue
 
     //send to webhook api
@@ -543,3 +618,59 @@ private eventJson(evt) {
     return update
 }
 
+private get(feature) {
+	getWeatherFeature(feature, zipCode)
+}
+
+private localDate(timeZone) {
+	def df = new java.text.SimpleDateFormat("yyyy-MM-dd")
+	df.setTimeZone(TimeZone.getTimeZone(timeZone))
+	df.format(new Date())
+}
+
+private estimateLux(sunriseDate, sunsetDate, weatherIcon) {
+	def lux = 0
+	def now = new Date().time
+	if (now > sunriseDate.time && now < sunsetDate.time) {
+		//day
+		switch(weatherIcon) {
+			case 'tstorms':
+				lux = 200
+				break
+			case ['cloudy', 'fog', 'rain', 'sleet', 'snow', 'flurries',
+				'chanceflurries', 'chancerain', 'chancesleet',
+				'chancesnow', 'chancetstorms']:
+				lux = 1000
+				break
+			case 'mostlycloudy':
+				lux = 2500
+				break
+			case ['partlysunny', 'partlycloudy', 'hazy']:
+				lux = 7500
+				break
+			default:
+				//sunny, clear
+				lux = 10000
+		}
+
+		//adjust for dusk/dawn
+		def afterSunrise = now - sunriseDate.time
+		def beforeSunset = sunsetDate.time - now
+		def oneHour = 1000 * 60 * 60
+
+		if(afterSunrise < oneHour) {
+			//dawn
+			lux = (long)(lux * (afterSunrise/oneHour))
+		} else if (beforeSunset < oneHour) {
+			//dusk
+			lux = (long)(lux * (beforeSunset/oneHour))
+		}
+	}
+	else {
+		//night - always set to 10 for now
+		//could do calculations for dusk/dawn too
+		lux = 10
+	}
+
+	lux
+}
