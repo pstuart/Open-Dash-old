@@ -674,3 +674,11 @@ private estimateLux(sunriseDate, sunsetDate, weatherIcon) {
 
 	lux
 }
+
+
+//TODO  Add location subscription subscribe(location, "alarmSystemStatus", alarmStatus) for alarmStatus function to store alarm state
+//TODO get SHM status String alarmSystemStatus = "${location?.currentState("alarmSystemStatus").stringValue}"
+//TODO create alarmStatus function for processing changes to alarm state aka SHM
+//TODO update alarm state with this sendLocationEvent(name: "alarmSystemStatus", value: status)  values = off,away,stay
+//TODO add commands and attributes defn, maybe liberate from https://github.com/ady624/webCoRE/blob/5f41cdcaf08616fb021021f7a4a4b3ccb1b7e239/smartapps/ady624/webcore.src/webcore.groovy
+//TODO add function and endpoint for sending notifications
