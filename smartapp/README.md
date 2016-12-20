@@ -130,14 +130,17 @@ Get routine information
 returns json
 
 example:
-`{"id":"[uuid]","label":"I'm Back!"}`
+```
+{"id":"[uuid]","label":"I'm Back!"}
+```
 
 POST
 Execute routine
 
 returns html
 
-```success: 204
+```
+success: 204
 error: 404
 ```
 
